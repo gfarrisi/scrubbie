@@ -1,10 +1,21 @@
 .main {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   align-items: center;
-  padding: 6rem;
+  /* padding: 6rem; */
   min-height: 100vh;
+  background: linear-gradient(180deg, #748ffc 50%, white 50%); 
+
+}
+
+.title {
+  color: black;
+  font-family: Inter;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 58px; /* 290% */
 }
 
 .description {
@@ -46,17 +57,40 @@
   width: var(--max-width);
 }
 
+.card-component {
+  position: absolute; /* To be able to overlap */
+  top: 25vh; /* Position it 25% down from the top edge of the container to achieve 50% overlap */
+  left: 50%; /* Center the card component horizontally */
+  transform: translateX(-50%); /* Adjust the horizontal centering */
+  z-index: 10; /* Ensure it stays on top */
+  /* Add other styling for the card component such as width, height, border, etc. */
+  width: 300px; 
+  height: 200px;
+  border: 1px solid black;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 .card {
-  padding: 1rem 1.2rem;
-  border-radius: var(--border-radius);
-  background: rgba(var(--card-rgb), 0);
-  border: 1px solid rgba(var(--card-border-rgb), 0);
-  transition: background 200ms, border 200ms;
+  min-width: 340px;
+  max-width: 600px;
+  width: 65%;
+  border-radius: var(--lg, 8px);
+  background: #FFF;
+  z-index: 20;
+  padding: 2.5rem 3rem;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column; 
+
+/* Shadow/xl */
+  box-shadow: 0px 17px 17px -7px rgba(0, 0, 0, 0.04), 0px 36px 28px -7px rgba(0, 0, 0, 0.05), 0px 1px 3px 0px rgba(0, 0, 0, 0.05);
 }
 
 .card span {
   display: inline-block;
-  transition: transform 200ms;
+  /* transition: transform 200ms; */
 }
 
 .card h2 {
@@ -72,6 +106,80 @@
   max-width: 30ch;
 }
 
+.search {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.search input {
+  border-radius: var(--md, 6px);
+  border-radius: 4px;
+  border: 1px solid var(--border-default, #CED4DA);
+  background: var(--base-background, #FFF);
+  display: flex;
+  height: 44px;
+  padding: 0px var(--lg, 8px);
+  align-items: center;
+  gap: var(--lg, 8px);
+  align-self: stretch;
+  width: 400px;
+
+  color: var(--text-disabled, #ADB5BD);
+    /* Components/input/text/md */
+  font-family: Inter;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 40px; /* 250% */
+}
+
+.search button {
+  border-radius: var(--md, 6px);
+  background: var(--blue-4, #4DABF7);
+  border: none;
+  width: 50;
+  height: 35;
+}
+
+.search img {
+  padding: .7rem .7rem .5rem .7rem;
+}
+
+
+.customizeButton {
+  border: none;
+  color: var(--secondary-2, #95A4AC);
+  font-family: Inter;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 40px; /* 250% */
+  background-color: white;
+  padding: .5rem 0rem;
+}
+
+
+
+.logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  padding: 4rem 0;
+}
+
+
+.centerText {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  padding: 2.5rem 0;
+}
+
 .center {
   display: flex;
   justify-content: center;
@@ -81,17 +189,17 @@
 }
 
 .center::before {
-  background: var(--secondary-glow);
+  /* background: var(--secondary-glow); */
   border-radius: 50%;
   width: 480px;
-  height: 360px;
+  height: 100px;
   margin-left: -400px;
 }
 
 .center::after {
-  background: var(--primary-glow);
+  /* background: var(--primary-glow); */
   width: 240px;
-  height: 180px;
+  height: 0px;
   z-index: -1;
 }
 
@@ -107,8 +215,145 @@
 .logo {
   position: relative;
 }
+
+.searchResults {
+  margin-bottom: 1rem;
+}
+
+.scrubReportTitle {
+  color: var(--secondary-3, var(--secondary-3, #6A7F8A));
+  /* Title/h5 */
+  font-family: Inter;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 150%; /* 24px */
+}
+
+
+
+.scoreIndexContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 4rem;
+  width: 700px;
+}
+
+.scoreIndexContainer p {
+  color: var(--secondary-3, #6A7F8A);
+  text-align: center;
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 155%;
+}
+
+.scoreIndexNumber {
+  color: var(--yellow-6, #FAB005);
+  text-align: center;
+
+  /* Title/h6 */
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 150%; /* 21px */
+}
+
+.reportItem {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.reportItemTitle {
+  color: var(--text-default, #141517);
+
+  /* Title/h5 */
+  font-family: Inter;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 150%; /* 24px */
+}
+
+.reportItemResult {
+  color: var(--secondary-3, #6A7F8A);
+
+  /* Text/400/md */
+  font-family: Inter;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 155%; /* 24.8px */
+}
+.socialItem {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  margin-top: .6rem;
+}
+
+.walletCard {
+  border-radius: 4px;
+  border: 1px solid var(--border-default, #CED4DA);
+  background: var(--card-background, #F8F9FA);
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .2rem;
+  color: var(--text-default, #212529);
+  /* Components/badge/text */
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 16px; /* 160% */
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 800px;
+  min-width: 500px;
+  position: relative;
+}
+
+.closeButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+
+/* .wallet {
+  border-radius: 4px;
+  border: 1px solid var(--border-default, #CED4DA);
+  background: var(--card-background, #F8F9FA);
+} */
+
+
+
 /* Enable hover only on non-touch devices */
-@media (hover: hover) and (pointer: fine) {
+/* @media (hover: hover) and (pointer: fine) {
   .card:hover {
     background: rgba(var(--card-rgb), 0.1);
     border: 1px solid rgba(var(--card-border-rgb), 0.15);
@@ -123,7 +368,7 @@
   .card:hover span {
     transform: none;
   }
-}
+} */
 
 /* Mobile */
 @media (max-width: 700px) {
