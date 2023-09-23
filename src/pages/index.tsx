@@ -1,26 +1,25 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from '@/styles/Home.module.css'
-import { useEffect, useState } from 'react'
-import { getScrubScore } from '../data/score'
+import styles from "@/styles/Home.module.css";
+import { Inter } from "next/font/google";
+import Head from "next/head";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
-  const [score, setScore] = useState(0)
-  const walletAddress = '0x1fDcf949E139dB1EEfdC5D7A2787AF15a73c26B4'
+  const [score, setScore] = useState(0);
+  const walletAddress = "gmoney.9dcc.eth";
 
-
-  async function fetchScore(){
-      const scamScore = await fetch(`/api/score?walletAddress=${walletAddress}`)
-      const scamScoreJSON = await scamScore.json()
-      setScore(scamScoreJSON.score)
+  async function fetchScore() {
+    const scamScore = await fetch(`/api/score?walletAddress=${walletAddress}`);
+    const scamScoreJSON = await scamScore.json();
+    console.log(scamScoreJSON);
+    setScore(scamScoreJSON.score);
   }
 
-    useEffect(()=>{
-      fetchScore();
-    },[])
+  useEffect(() => {
+    fetchScore();
+  }, []);
   return (
     <>
       <Head>
@@ -41,7 +40,7 @@ export default function Home() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              By{' '}
+              By{" "}
               <Image
                 src="/vercel.svg"
                 alt="Vercel Logo"
@@ -125,5 +124,5 @@ export default function Home() {
         </div>
       </main>
     </>
-  )
+  );
 }
