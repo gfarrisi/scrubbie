@@ -26,25 +26,14 @@ const client = new ApolloClient({
 
 
 
-const PRIMARY_ENS =  gql`
-  query PRIMARY_ENS($addresses: [String!]) {
-    Domains(input: {filter: {owner: {_in: $addresses}, isPrimary: {_eq: true}}, blockchain: ethereum}) {
-      Domain {
-        name
-        owner
-        isPrimary
-      }
-    }
-  }
-`;
 
 const QUERY = gql`
-query MyQuery {
-  Wallet(input: {identity: "vitalik.eth", blockchain: ethereum}) {
+query MyQuery ($address: Identity!) {
+  Wallet(input: {identity: $address, blockchain: ethereum}) {
     primaryDomain {
       name
     }
-    socials(input: {filter: {dappName: {_eq: farcaster}}}) {
+    socials(input: {filter: {dappName: {_in: [farcaster, lens] }}}) {
       dappName
       profileName
       userAssociatedAddresses
@@ -90,6 +79,43 @@ query MyQuery {
 }
 `;
 
+
+export const fetchAirstackData = async (
+  addresses: string[],
+): Promise<string[]> => {
+  console.log({addresses})
+   const { data, errors } = await client.query({
+    query: QUERY,
+    variables: {
+      address: addresses[0],
+    },
+  });
+  console.log({data,errors})
+  // if (errors || data?.errors) {
+  //   console.error("Detailed Errors:", data?.errors);
+  //   throw new Error('Error fetching data');
+  // }
+
+  // const domainNames = data?.Domains?.Domain?.map((domain: any) => domain.name) || [];
+  // return domainNames;
+  return ['']
+};
+
+
+
+
+
+const PRIMARY_ENS =  gql`
+  query PRIMARY_ENS($addresses: [String!]) {
+    Domains(input: {filter: {owner: {_in: $addresses}, isPrimary: {_eq: true}}, blockchain: ethereum}) {
+      Domain {
+        name
+        owner
+        isPrimary
+      }
+    }
+  }
+`;
 
 export const fetchPrimaryENS = async (
   addresses: string[],
@@ -202,12 +228,6 @@ export const getSocialProfiles = async (walletAddress: string): Promise<{
         ens: ens[0]
     }
 }
-
-
-
-
-
-
 
 
 export const getWalletAge = (walletAddress: string): number =>{
