@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import ScoreIndex from '../../components/ScoreIndex'
 import ScrubScore from '../../components/ScrubScore'
 import ScrubModal from '../../components/ScrubCriteriaModal'
+import { ScrubScoreCriteria } from '@/data/score'
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,10 +30,26 @@ export type ScrubScoreResult = {
 }
 
 export default function Home() {
-  const [searchResult, setSearchResult] = useState<ScrubScoreResult>() 
-  const [isScrubModalOpen, setScrubModalOpen] = useState(false);
   const [searchedValue, setSearchValue] = useState<string>('')
+  const [isScrubModalOpen, setScrubModalOpen] = useState(false);
+  const [scrubCritera, setScrubCriteria] = useState<ScrubScoreCriteria>({
+    walletAddress: '',
+    weights: {
+      walletActivity: 1,
+      diversePurchaseFrequency: 3,
+      purchaseSpike: 1,
+      pricePerPurchaseDistribution: 3,
+      tieredSocialProfile: 2
+    },
+    threshold: {
+      walletAge: 365,
+      maxEthSpent: .1,
+      numPurchases: 10,
+    }
+  })
   const walletAddress = '0x1fDcf949E139dB1EEfdC5D7A2787AF15a73c26B4'
+  const [searchResult, setSearchResult] = useState<ScrubScoreResult>() 
+
 
   async function fetchScore() {
     const scamScore = await fetch(`/api/score?walletAddress=${walletAddress}`);

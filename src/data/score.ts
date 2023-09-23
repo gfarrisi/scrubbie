@@ -19,18 +19,18 @@ interface WalletData {
   profileScore: number;
 }
 
-interface ScrubScoreProps {
+export interface ScrubScoreCriteria {
   walletAddress: string;
   weights: {
     walletActivity: number;
-    diversePurchaseFrequency: number;
-    purchaseSpike: number;
-    pricePerPurchaseDistribution: number;
+    diversePurchaseFrequency: number; //change to automated interval
+    purchaseSpike: number; //number of purchases
+    pricePerPurchaseDistribution: number; //highest price spent
     tieredSocialProfile: number;
   };
   threshold: {
     walletAge: number;
-    pricePurchases: number;
+    maxEthSpent: number;
     numPurchases: number;
   };
 }
@@ -307,7 +307,7 @@ const computeSpamScore = (
   return combinedScore;
 };
 
-export const getScrubScore = async (scrubScoreProps: ScrubScoreProps) => {
+export const getScrubScore = async (scrubScoreProps: ScrubScoreCriteria) => {
   const socialData = await getSocialProfiles(scrubScoreProps?.walletAddress);
   const purchaseData = await getPurchases(scrubScoreProps?.walletAddress);
   const earliestTransaction = await getEarliestTransaction(

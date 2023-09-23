@@ -1,6 +1,27 @@
 import React from 'react';
 import styles from '@/styles/Home.module.css'
 
+
+
+interface CriteriaProps {
+    name: string;
+    defaultWieght: number;
+    weight: number;
+    
+}
+
+const Criteria = (props: CriteriaProps) => {
+   
+
+  return (
+    <div className={styles.modalOverlay}>
+     
+    </div>
+  );
+};
+
+
+
 interface ScrubModalProps {
     isOpen: boolean;
     onClose: () => void;
