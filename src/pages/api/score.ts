@@ -15,11 +15,11 @@ export default async function handler(
   const score = await getScrubScore({
     walletAddress,
     weights: {
-      walletAge: 1,
-      socialProfile: 1,
-      numPurchases: 1,
-      pricePurchases: 1,
-      timeZoneCluster: 1,
+      walletActivity: 1,
+      diversePurchaseFrequency: 1,
+      purchaseSpike: 1,
+      pricePerPurchaseDistribution: 1,
+      tieredSocialProfile: 1,
     },
     threshold: {
       walletAge: 1,

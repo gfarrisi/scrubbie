@@ -1,14 +1,32 @@
-import { fetchAirstackData, getPurchases } from "./dataSource/airstack";
-import { socialProfileScore } from "./socialProfile";
+import {
+  PurchaseData,
+  SocialData,
+  getEarliestTransaction,
+  getPurchases,
+  getSocialProfiles,
+} from "./dataSource/airstack";
+
+interface WalletData {
+  creationDate: Date | null;
+  walletAge: number | null;
+  transactions: number;
+  purchases: {
+    frequency: number;
+    total: number;
+    values: number[];
+    destinations: string[];
+  };
+  profileScore: number;
+}
 
 interface ScrubScoreProps {
   walletAddress: string;
   weights: {
-    walletAge: number;
-    socialProfile: number;
-    numPurchases: number;
-    pricePurchases: number;
-    timeZoneCluster: number;
+    walletActivity: number;
+    diversePurchaseFrequency: number;
+    purchaseSpike: number;
+    pricePerPurchaseDistribution: number;
+    tieredSocialProfile: number;
   };
   threshold: {
     walletAge: number;
@@ -34,32 +52,272 @@ export type WeightAndThreshold = {
   threshold: number | null;
 };
 
-export const weightAndThresholdDefaults = (
-  scrubScoreProps: ScrubScoreProps,
-  metric: Metric
-): WeightAndThreshold => {
-  const weight = scrubScoreProps.weights[metric];
-  const threshold =
-    metric === "socialProfile" || metric === "timeZoneCluster"
-      ? null
-      : scrubScoreProps.threshold[metric];
+interface MinMaxData {
+  oldestWalletDate: Date;
+  maxTransactions: number;
+  maxFrequency: number;
+  maxTotalPurchases: number;
+  globalMaxPurchaseValue: number;
+  globalMinPurchaseValue: number;
+}
+
+export const DEFAULT_VALUES: MinMaxData = {
+  oldestWalletDate: new Date("2015-07-30"), // Ethereum's launch date
+  maxTransactions: 4000, // Assuming 4000 transactions a year
+  maxFrequency: 1000, // Assuming 1000 unique transactions a year
+  maxTotalPurchases: 400, // Assuming 400 purchases a year
+  globalMaxPurchaseValue: 500, // In ETH
+  globalMinPurchaseValue: 0.001, // In ETH
+};
+
+export const calculateMinMax = (wallets: WalletData[] = []): MinMaxData => {
+  let oldestWalletDate = new Date(); // default to the current date
+  let maxTransactions = 0;
+  let maxFrequency = 0;
+  let maxTotalPurchases = 0;
+  let globalMaxPurchaseValue = Number.MIN_VALUE; // start with the smallest possible number
+  let globalMinPurchaseValue = Number.MAX_VALUE; // start with the largest possible number
+
+  if (wallets.length === 0) {
+    return DEFAULT_VALUES;
+  }
+
+  for (let wallet of wallets) {
+    // Check if the wallet's creation date is older than the oldest so far
+    if (
+      wallet.creationDate &&
+      wallet.creationDate instanceof Date &&
+      wallet.creationDate < oldestWalletDate
+    ) {
+      oldestWalletDate = wallet.creationDate;
+    }
+
+    if (wallet.transactions > maxTransactions) {
+      maxTransactions = wallet.transactions;
+    }
+
+    if (wallet.purchases.frequency > maxFrequency) {
+      maxFrequency = wallet.purchases.frequency;
+    }
+
+    if (wallet.purchases.total > maxTotalPurchases) {
+      maxTotalPurchases = wallet.purchases.total;
+    }
+
+    // Update global max and min purchase values
+    for (let value of wallet.purchases.values) {
+      if (value > globalMaxPurchaseValue) {
+        globalMaxPurchaseValue = value;
+      }
+      if (value < globalMinPurchaseValue) {
+        globalMinPurchaseValue = value;
+      }
+    }
+  }
+
   return {
-    weight,
-    threshold,
+    oldestWalletDate,
+    maxTransactions,
+    maxFrequency,
+    maxTotalPurchases,
+    globalMaxPurchaseValue,
+    globalMinPurchaseValue,
   };
 };
 
-export const getScrubScore = async (scrubScoreProps: ScrubScoreProps) => {
-  const walletData = await fetchAirstackData([scrubScoreProps?.walletAddress]);
-  const socialScore = await socialProfileScore(
-    walletData,
-    weightAndThresholdDefaults(scrubScoreProps, "socialProfile")
-  );
-  const purchaseData = await getPurchases(scrubScoreProps?.walletAddress);
-  // const walletAgeScore = await getWalletAgeScore(walletData, weightAndThresholdDefaults(scrubScoreProps, 'walletAge'))
-  // const numPurchasesScore = await getNumPurchasesScore(walletData, weightAndThresholdDefaults(scrubScoreProps, 'numPurchases'))
-  // const pricePurchasesScore = await getPricePurchasesScore(walletData, weightAndThresholdDefaults(scrubScoreProps, 'pricePurchases'))
-  // const timeZoneClusterScore = await getTimeZoneClusterScore(walletData, weightAndThresholdDefaults(scrubScoreProps, 'timeZoneCluster'))
+export const createWalletData = (
+  purchases: PurchaseData[],
+  walletAge: string | null,
+  social: SocialData
+): WalletData => {
+  const transactions = purchases.length;
 
-  return 0;
+  const values = purchases.map((item) => {
+    return (
+      Number(item.paymentAmount) / Math.pow(10, item.paymentToken.decimals)
+    );
+  });
+
+  const destinations = purchases.flatMap((item) => {
+    return item.nfts.map((nft) => nft.token.address);
+  });
+
+  let creationDate: Date | null = null;
+  let walletAgeDays: number | null = null;
+  let frequency: number;
+
+  if (walletAge) {
+    creationDate = new Date(walletAge);
+
+    // Calculate the wallet's age in days
+    walletAgeDays =
+      (new Date().getTime() - creationDate.getTime()) / (1000 * 60 * 60 * 24);
+
+    // Calculate the frequency as the total transactions over wallet age
+    frequency = transactions / walletAgeDays;
+  } else {
+    creationDate = null; // Setting to null indicating that the creation date is unknown
+    walletAgeDays = null; // Setting to null indicating that the wallet age is unknown
+    frequency = -1; // Using -1 (or any other special value) to signify unknown frequency
+  }
+
+  return {
+    creationDate: creationDate,
+    walletAge: walletAgeDays,
+    transactions: transactions,
+    purchases: {
+      frequency: frequency,
+      total: transactions,
+      values: values,
+      destinations: destinations,
+    },
+    profileScore: social.profileScore,
+  };
+};
+
+// Wallet age with activity ratio
+const walletActivityScore = (
+  wallet: WalletData,
+  minMax: MinMaxData
+): number => {
+  if (!wallet.creationDate) return 0;
+  const age =
+    (new Date().getTime() - wallet.creationDate.getTime()) /
+    (1000 * 60 * 60 * 24);
+  if (age === 0) return 0;
+  const activityRatio = wallet.transactions / age;
+  return normalize(activityRatio, 0, minMax.maxTransactions / age);
+};
+
+// Purchase Frequency considering diverse purchases
+const diversePurchaseFrequencyScore = (
+  wallet: WalletData,
+  minMax: MinMaxData
+): number => {
+  const uniqueDestinations = new Set(wallet.purchases.destinations).size;
+  const diversityScore = uniqueDestinations / wallet.purchases.total;
+  return normalize(
+    wallet.purchases.frequency * diversityScore,
+    0,
+    minMax.maxFrequency
+  );
+};
+
+// Number of Purchases distribution over time
+const purchaseSpikeScore = (wallet: WalletData, minMax: MinMaxData): number => {
+  if (!wallet.creationDate) return 0; // handle unknown creation date
+  const purchasesPerDay =
+    wallet.purchases.total /
+    ((new Date().getTime() - wallet.creationDate.getTime()) /
+      (1000 * 60 * 60 * 24));
+  return normalize(
+    purchasesPerDay,
+    0,
+    minMax.maxTotalPurchases /
+      ((new Date().getTime() - minMax.oldestWalletDate.getTime()) /
+        (1000 * 60 * 60 * 24))
+  );
+};
+
+// Price per Purchase distribution
+const pricePerPurchaseDistributionScore = (
+  wallet: WalletData,
+  minMax: MinMaxData
+): number => {
+  const mean =
+    wallet.purchases.values.reduce((a, b) => a + b, 0) / wallet.purchases.total;
+  const variance =
+    wallet.purchases.values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) /
+    wallet.purchases.total;
+  const standardDeviation = Math.sqrt(variance);
+  const range =
+    Math.max(...wallet.purchases.values) - Math.min(...wallet.purchases.values);
+
+  // If there's only one unique purchase value, the range will be 0, so we'll use the global range as a fallback.
+  const normalizationMax =
+    range > 0
+      ? range
+      : minMax.globalMaxPurchaseValue - minMax.globalMinPurchaseValue;
+
+  return normalize(standardDeviation, 0, normalizationMax);
+};
+
+// Social Profile with tiered system
+const tieredSocialProfileScore = (wallet: WalletData): number => {
+  // Assuming 3 is the highest level of verification. Adjust if needed.
+  return 1 - wallet.profileScore / 3;
+};
+
+// Utility function for normalization
+const normalize = (value: number, min: number, max: number): number => {
+  if (min === max) return 1; // handle potential divide by zero
+  return (value - min) / (max - min);
+};
+
+// Combined spam score
+const computeSpamScore = (
+  wallet: WalletData,
+  weights: {
+    walletActivity: number;
+    diversePurchaseFrequency: number;
+    purchaseSpike: number;
+    pricePerPurchaseDistribution: number;
+    tieredSocialProfile: number;
+  },
+  minMax: MinMaxData
+): number => {
+  // Normalize the weights
+  const totalWeight = Object.values(weights).reduce((a, b) => a + b, 0);
+  const normalizedWeights = {
+    walletActivity: weights.walletActivity / totalWeight,
+    diversePurchaseFrequency: weights.diversePurchaseFrequency / totalWeight,
+    purchaseSpike: weights.purchaseSpike / totalWeight,
+    pricePerPurchaseDistribution:
+      weights.pricePerPurchaseDistribution / totalWeight,
+    tieredSocialProfile: weights.tieredSocialProfile / totalWeight,
+  };
+
+  const walletAgeScore =
+    normalizedWeights.walletActivity * walletActivityScore(wallet, minMax);
+  const socialProfileScore =
+    normalizedWeights.tieredSocialProfile * tieredSocialProfileScore(wallet);
+  const purchaseSpike =
+    normalizedWeights.purchaseSpike * purchaseSpikeScore(wallet, minMax);
+  const pricePerPurchaseDistribution =
+    normalizedWeights.pricePerPurchaseDistribution *
+    pricePerPurchaseDistributionScore(wallet, minMax);
+  const diversePurchaseFrequency =
+    normalizedWeights.diversePurchaseFrequency *
+    diversePurchaseFrequencyScore(wallet, minMax);
+
+  const combinedScore =
+    walletAgeScore +
+    socialProfileScore +
+    purchaseSpike +
+    pricePerPurchaseDistribution +
+    diversePurchaseFrequency;
+
+  return combinedScore;
+};
+
+export const getScrubScore = async (scrubScoreProps: ScrubScoreProps) => {
+  const socialData = await getSocialProfiles(scrubScoreProps?.walletAddress);
+  const purchaseData = await getPurchases(scrubScoreProps?.walletAddress);
+  const earliestTransaction = await getEarliestTransaction(
+    scrubScoreProps?.walletAddress
+  );
+  const walletData = createWalletData(
+    purchaseData,
+    earliestTransaction,
+    socialData
+  );
+  console.log("walletData", walletData);
+  const minMaxData = calculateMinMax();
+  const spamScore = computeSpamScore(
+    walletData,
+    scrubScoreProps.weights,
+    minMaxData
+  );
+  console.log("spamScore", spamScore);
+  return 1 - spamScore;
 };

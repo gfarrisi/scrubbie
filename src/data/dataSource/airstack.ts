@@ -29,10 +29,13 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-const QUERY = gql`
-  query GetWalletData($address: Identity!) {
+const SOCIAL_PROFILE = gql`
+  query getSocialProfiles($address: Identity!) {
     Wallet(input: { identity: $address, blockchain: ethereum }) {
       primaryDomain {
+        name
+      }
+      domains {
         name
       }
       socials(input: { filter: { dappName: { _in: [farcaster, lens] } } }) {
@@ -40,111 +43,96 @@ const QUERY = gql`
         profileName
         userAssociatedAddresses
       }
-      tokenBalances(input: { blockchain: ethereum, limit: 50 }) {
-        tokenAddress
-        amount
-        tokenId
-        tokenType
-        token {
-          name
-          symbol
-        }
-      }
-      nftSaleTransactions(input: { blockchain: ethereum, limit: 50 }) {
-        paymentAmount
-        paymentToken {
-          name
-          symbol
-        }
-        nfts {
-          token {
-            decimals
-            symbol
-            name
-          }
-        }
-        blockTimestamp
-      }
-      tokenTransfers(input: { blockchain: ethereum, limit: 50 }) {
-        from {
-          identity
-        }
-        to {
-          identity
-        }
-        tokenAddress
-        amount
-        tokenId
-        tokenType
-      }
     }
   }
 `;
 
-export interface AirstackWalletData {
-  primaryDomain: {
-    name: string;
-  };
-  socials: {
-    dappName: "lens" | "farcaster";
-    profileName: string;
-    userAssociatedAddresses: string[];
-  }[];
-  tokenBalances: {
-    tokenAddress: string;
-    amount: string;
-    tokenId: string;
-    tokenType: string;
-    token: {
-      name: string;
-      symbol: string;
-    };
-  }[];
-  nftSaleTransactions: {
-    paymentAmount: string;
-    paymentToken: {
-      name: string;
-      symbol: string;
-    };
-    nfts: {
-      token: {
-        decimals: string;
-        symbol: string;
-        name: string;
-      };
-    }[];
-    blockTimestamp: string;
-  }[];
-  tokenTransfers: {
-    from: {
-      identity: string;
-    };
-    to: {
-      identity: string;
-    };
-    tokenAddress: string;
-    amount: string;
-    tokenId: string;
-  };
-}
+type Domain = {
+  name: string;
+};
 
-export const fetchAirstackData = async (
-  addresses: string[]
-): Promise<AirstackWalletData> => {
-  console.log({ addresses });
-  const { data, errors } = await client.query({
-    query: QUERY,
-    variables: {
-      address: addresses[0],
-    },
-  });
-  if (errors || data?.errors) {
-    console.error("Detailed Errors:", data?.errors);
-    throw new Error("Error fetching data");
+type Social = {
+  dappName: string;
+  profileName: string;
+  userAssociatedAddresses: string[];
+};
+
+type SocialDataPayload = {
+  primaryDomain?: Domain;
+  domains: Domain[];
+  socials: Social[];
+};
+
+export const computeVerificationLevel = (profiles: string[]): number => {
+  // Default unverified level
+  let verificationLevel = 0;
+  for (const profile of profiles) {
+    if (profile) {
+      verificationLevel += 1;
+    }
+  }
+  return verificationLevel;
+};
+
+export const extractSocialData = (payload: SocialDataPayload): any => {
+  let primaryDomainName: string | null = null;
+  if (payload.primaryDomain) {
+    primaryDomainName = payload.primaryDomain.name;
+  } else if (payload.domains && payload.domains.length > 0) {
+    // Use the first domain name from the array if the primary domain is absent
+    primaryDomainName = payload.domains[0].name;
+  } else {
+    primaryDomainName = null;
   }
 
-  const walletData = data?.Wallet;
-  return walletData;
+  const getSpecificDappData = (dappName: string) => {
+    const data = payload.socials.find((social) => social.dappName === dappName);
+    return data || { profileName: null, userAssociatedAddresses: [] };
+  };
+
+  const lensData = getSpecificDappData("lens");
+  const farcasterData = getSpecificDappData("farcaster");
+  const profiles: string[] = [];
+  if (primaryDomainName) {
+    profiles.push(primaryDomainName);
+  }
+  if (lensData.profileName) {
+    profiles.push(lensData.profileName);
+  }
+  if (farcasterData.profileName) {
+    profiles.push(farcasterData.profileName);
+  }
+  return {
+    primaryDomain: primaryDomainName,
+    lensProfileName: lensData.profileName,
+    farcasterProfileName: farcasterData.profileName,
+    profileScore: computeVerificationLevel(profiles),
+  };
+};
+
+export interface SocialData {
+  primaryDomain: string | null;
+  lensProfileName: string | null;
+  farcasterProfileName: string | null;
+  profileScore: number;
+}
+
+export const getSocialProfiles = async (
+  address: string
+): Promise<SocialData> => {
+  const { data, errors } = await client.query<{
+    Wallet: SocialDataPayload;
+  }>({
+    query: SOCIAL_PROFILE,
+    variables: {
+      address: address,
+    },
+  });
+  if (errors) {
+    console.error(errors);
+    throw new Error("Error fetching data");
+  }
+  return extractSocialData(data?.Wallet);
 };
 
 export interface PurchaseData {
@@ -246,4 +234,51 @@ export const getPurchases = async (
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
   return purchases;
+};
+
+export interface EarliestTransaction {
+  Ethereum: {
+    TokenTransfer: [
+      {
+        blockTimestamp: "2016-05-19T11:09:40Z";
+      }
+    ];
+  };
+}
+
+const EARLIEST_TRANSACTION = gql`
+  query GetEarliestTokenTransferForAddress($address: Identity!) {
+    Ethereum: TokenTransfers(
+      input: {
+        blockchain: ethereum
+        limit: 1
+        order: { blockTimestamp: ASC }
+        filter: { _or: { from: { _eq: $address }, to: { _eq: $address } } }
+      }
+    ) {
+      TokenTransfer {
+        blockTimestamp
+      }
+    }
+  }
+`;
+
+export const getEarliestTransaction = async (
+  address: string
+): Promise<string | null> => {
+  const { data, errors } = await client.query<EarliestTransaction>({
+    query: EARLIEST_TRANSACTION,
+    variables: {
+      address: address,
+    },
+  });
+  if (errors) {
+    console.error(errors);
+    throw new Error("Error fetching data");
+  }
+  let walletAge = null;
+  if (data?.Ethereum?.TokenTransfer?.length > 0) {
+    walletAge = data.Ethereum.TokenTransfer[0].blockTimestamp;
+  }
+  return walletAge;
 };
