@@ -86,7 +86,9 @@ export const extractSocialData = (payload: SocialDataPayload): any => {
   }
 
   const getSpecificDappData = (dappName: string) => {
-    const data = payload.socials.find((social) => social.dappName === dappName);
+    const data = payload?.socials?.find(
+      (social) => social.dappName === dappName
+    );
     return data || { profileName: null, userAssociatedAddresses: [] };
   };
 

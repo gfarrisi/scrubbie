@@ -63,11 +63,11 @@ interface MinMaxData {
 
 export const DEFAULT_VALUES: MinMaxData = {
   oldestWalletDate: new Date("2015-07-30"), // Ethereum's launch date
-  maxTransactions: 4000, // Assuming 4000 transactions a year
-  maxFrequency: 1000, // Assuming 1000 unique transactions a year
-  maxTotalPurchases: 400, // Assuming 400 purchases a year
-  globalMaxPurchaseValue: 500, // In ETH
-  globalMinPurchaseValue: 0.001, // In ETH
+  maxTransactions: 3000, // Assuming 3000 transactions a year
+  maxFrequency: 800, // Assuming 800 unique transactions a year
+  maxTotalPurchases: 350, // Assuming 350 purchases a year
+  globalMaxPurchaseValue: 250, // In ETH
+  globalMinPurchaseValue: 0.005, // In ETH
 };
 
 export const calculateMinMax = (wallets: WalletData[] = []): MinMaxData => {
@@ -180,7 +180,7 @@ const walletActivityScore = (
   wallet: WalletData,
   minMax: MinMaxData
 ): number => {
-  if (!wallet.creationDate) return 0;
+  if (!wallet.creationDate) return 1;
   const age =
     (new Date().getTime() - wallet.creationDate.getTime()) /
     (1000 * 60 * 60 * 24);
@@ -194,18 +194,16 @@ const diversePurchaseFrequencyScore = (
   wallet: WalletData,
   minMax: MinMaxData
 ): number => {
+  if (wallet.purchases.total === 0) return 1;
   const uniqueDestinations = new Set(wallet.purchases.destinations).size;
   const diversityScore = uniqueDestinations / wallet.purchases.total;
-  return normalize(
-    wallet.purchases.frequency * diversityScore,
-    0,
-    minMax.maxFrequency
-  );
+  const frequency = wallet.purchases.frequency || 0;
+  return normalize(frequency * diversityScore, 0, minMax.maxFrequency);
 };
 
 // Number of Purchases distribution over time
 const purchaseSpikeScore = (wallet: WalletData, minMax: MinMaxData): number => {
-  if (!wallet.creationDate) return 0; // handle unknown creation date
+  if (!wallet.creationDate) return 1;
   const purchasesPerDay =
     wallet.purchases.total /
     ((new Date().getTime() - wallet.creationDate.getTime()) /
@@ -224,14 +222,18 @@ const pricePerPurchaseDistributionScore = (
   wallet: WalletData,
   minMax: MinMaxData
 ): number => {
+  if (wallet.purchases.total === 0 || wallet.purchases.values.length === 0) {
+    return 1;
+  }
   const mean =
     wallet.purchases.values.reduce((a, b) => a + b, 0) / wallet.purchases.total;
   const variance =
     wallet.purchases.values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) /
     wallet.purchases.total;
   const standardDeviation = Math.sqrt(variance);
-  const range =
-    Math.max(...wallet.purchases.values) - Math.min(...wallet.purchases.values);
+  const maxPurchase = Math.max(...wallet.purchases.values);
+  const minPurchase = Math.min(...wallet.purchases.values);
+  const range = maxPurchase - minPurchase;
 
   // If there's only one unique purchase value, the range will be 0, so we'll use the global range as a fallback.
   const normalizationMax =
@@ -279,16 +281,21 @@ const computeSpamScore = (
 
   const walletAgeScore =
     normalizedWeights.walletActivity * walletActivityScore(wallet, minMax);
+  console.log("walletAgeScore", walletAgeScore);
   const socialProfileScore =
     normalizedWeights.tieredSocialProfile * tieredSocialProfileScore(wallet);
+  console.log("socialProfileScore", socialProfileScore);
   const purchaseSpike =
     normalizedWeights.purchaseSpike * purchaseSpikeScore(wallet, minMax);
+  console.log("purchaseSpike", purchaseSpike);
   const pricePerPurchaseDistribution =
     normalizedWeights.pricePerPurchaseDistribution *
     pricePerPurchaseDistributionScore(wallet, minMax);
+  console.log("pricePerPurchaseDistribution", pricePerPurchaseDistribution);
   const diversePurchaseFrequency =
     normalizedWeights.diversePurchaseFrequency *
     diversePurchaseFrequencyScore(wallet, minMax);
+  console.log("diversePurchaseFrequency", diversePurchaseFrequency);
 
   const combinedScore =
     walletAgeScore +
