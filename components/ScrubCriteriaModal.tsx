@@ -16,10 +16,11 @@ const ScrubModal = (props: ScrubModalProps) => {
     <div className={styles.modalOverlay}>
       <div className={styles.modal}>
         <button className={styles.closeButton} onClick={onClose}>
-          x
+          X
         </button>
         <div className={styles.modalContent}>
             <h2>Configure your Scrub</h2>
+            <p>Assign weights for each category that is important to you.</p>
 
         </div>
             

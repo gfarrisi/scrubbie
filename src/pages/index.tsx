@@ -29,33 +29,35 @@ export type ScrubScoreResult = {
 }
 
 export default function Home() {
-  const [searchResult, setSearchResult] = useState({
-    score: 60,
-    walletAddressOrENS: 'vitalik.eth',
-    walletAgeDays: 100,
-    highestPurchase: 100,
-    totalPurchases: 100,
-    purchasePatterns: PurchasePattern.Unusual,
-    socialProfiles: {
-      ens: true,
-      lens: true,
-      farcaster: false
-    }
-  }) 
+  const [searchResult, setSearchResult] = useState<ScrubScoreResult>() 
   const [isScrubModalOpen, setScrubModalOpen] = useState(false);
-  const [score, setScore] = useState(0)
+  const [searchedValue, setSearchValue] = useState<string>('')
   const walletAddress = '0x1fDcf949E139dB1EEfdC5D7A2787AF15a73c26B4'
 
   async function fetchScore() {
     const scamScore = await fetch(`/api/score?walletAddress=${walletAddress}`);
     const scamScoreJSON = await scamScore.json();
     console.log(scamScoreJSON);
-    setScore(scamScoreJSON.score);
+    setSearchResult(
+      {
+        score: 60,
+        walletAddressOrENS: 'vitalik.eth',
+        walletAgeDays: 100,
+        highestPurchase: 100,
+        totalPurchases: 100,
+        purchasePatterns: PurchasePattern.Unusual,
+        socialProfiles: {
+          ens: true,
+          lens: true,
+          farcaster: false
+        }
+      }
+    )
   }
 
-  useEffect(() => {
-    fetchScore();
-  }, []);
+  // useEffect(() => {
+  //   fetchScore();
+  // }, []);
   return (
     <>
       <Head>
@@ -85,8 +87,19 @@ export default function Home() {
               <input
                 type="text"
                 placeholder="vitalik.eth"
+                value={searchedValue || ""}
+                onChange={
+                  (e) => {
+                    console.log(e.target.value)
+                    setSearchValue(e.target.value)
+                  }
+                }
               />
-              <button>
+              <button 
+              
+              onClick={
+                () => fetchScore()
+              }>
                 <Image
                   src="/search.svg"
                   alt="search"
