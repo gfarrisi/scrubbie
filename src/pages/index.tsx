@@ -72,9 +72,6 @@ export default function Home() {
     )
   }
 
-  // useEffect(() => {
-  //   fetchScore();
-  // }, []);
   return (
     <>
       <Head>
@@ -148,7 +145,12 @@ export default function Home() {
           }}>
 
           </div>
-          <ScrubModal isOpen={isScrubModalOpen} onClose={() => setScrubModalOpen(false)}/>
+          <ScrubModal 
+            isOpen={isScrubModalOpen} 
+            onClose={() => setScrubModalOpen(false)}
+            scrubCritera={scrubCritera}
+            setScrubCriteria={setScrubCriteria}
+          />
          
       </main>
     </>

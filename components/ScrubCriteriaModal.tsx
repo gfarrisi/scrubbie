@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from '@/styles/Home.module.css'
+import { ScrubScoreCriteria } from '@/data/score';
 
 
 
@@ -25,10 +26,12 @@ const Criteria = (props: CriteriaProps) => {
 interface ScrubModalProps {
     isOpen: boolean;
     onClose: () => void;
+    scrubCritera: ScrubScoreCriteria;
+    setScrubCriteria: (criteria: ScrubScoreCriteria) => void;
 }
 
 const ScrubModal = (props: ScrubModalProps) => {
-    const { isOpen, onClose } = props;
+    const { isOpen, onClose, scrubCritera, setScrubCriteria } = props;
     if (!isOpen) {
         return null;
     }

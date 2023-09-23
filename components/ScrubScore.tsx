@@ -113,7 +113,7 @@ interface ScrubScoreProps {
             <ScoreIndex score={results.score} />
             <div className={styles.centerText}>
                 <span className={styles.scrubReportTitle}>
-                    SCRUB REPORT
+                    SCRUBBIE REPORT
                 </span>
             </div>
             <div className={styles.scrubReport}>

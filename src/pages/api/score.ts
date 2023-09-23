@@ -23,7 +23,7 @@ export default async function handler(
     },
     threshold: {
       walletAge: 1,
-      pricePurchases: 2,
+      maxEthSpent: 2,
       numPurchases: 10,
     },
   });
