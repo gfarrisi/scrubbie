@@ -9,9 +9,10 @@ export interface SocialProfile {
 export const hasSocialProfiles = async (walletAddress: string):Promise<SocialProfile> => {
     //get social profiles for wallet using ens
     const socialProfiles = await getSocialProfiles(walletAddress);
+    console.log({socialProfiles})
     return {
-        lens: false,
-        farcaster: false,
-        ens: false
+        lens: socialProfiles?.lens || false,
+        farcaster: socialProfiles?.farcaster || false,
+        ens:socialProfiles?.ens || false,
     }
 }

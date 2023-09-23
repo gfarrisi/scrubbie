@@ -2,10 +2,25 @@ import Head from 'next/head'
 import Image from 'next/image'
 import { Inter } from 'next/font/google'
 import styles from '@/styles/Home.module.css'
+import { useEffect, useState } from 'react'
+import { getScrubScore } from '../data'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
+  const [score, setScore] = useState(0)
+  const walletAddress = '0x1fDcf949E139dB1EEfdC5D7A2787AF15a73c26B4'
+
+
+  async function fetchScore(){
+      const scamScore = await fetch(`/api/score?walletAddress=${walletAddress}`)
+      const scamScoreJSON = await scamScore.json()
+      setScore(scamScoreJSON.score)
+  }
+
+    useEffect(()=>{
+      fetchScore();
+    },[])
   return (
     <>
       <Head>
