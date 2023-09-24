@@ -29,14 +29,27 @@ export type ScrubScoreResult = {
   };
 };
 
+const LoadingIcon = () => {
+  return (
+    <div className={styles.loadingContainer}>
+      <div className={`${styles.rectangle} ${styles.rectangleRed}`}></div>
+      <div className={`${styles.rectangle} ${styles.rectangleOrange}`}></div>
+      <div className={`${styles.rectangle} ${styles.rectangleYellow}`}></div>
+      <div className={`${styles.rectangle} ${styles.rectangleGreen}`}></div>
+    </div>
+  );
+}
+
+
+
 export default function Home() {
-  const [searchedValue, setSearchValue] = useState<string>("");
   const [isScrubModalOpen, setScrubModalOpen] = useState(false);
   const [scrubCritera, setScrubCriteria] = useAtom(scrubScoreAtom);
   const [searchResult, setSearchResult] = useState<ScrubScoreResult>();
   const [searchTriggered, setSearchTriggered] = useState<boolean>(false);
 
   async function fetchResults() {
+    setSearchTriggered(true);
     const scamScore = await fetch(`/api/score`, {
       method: "POST",
       headers: {
@@ -47,8 +60,11 @@ export default function Home() {
     const scamScoreJSON = await scamScore.json();
     console.log(scamScoreJSON);
     setSearchResult(scamScoreJSON);
+    setSearchTriggered(false);
   }
 
+
+  console.log({searchTriggered})
 
 
   return (
@@ -102,6 +118,7 @@ export default function Home() {
               />
             </button>
           </div>
+          {searchTriggered && <LoadingIcon />}
           {searchResult && <ScrubScore results={searchResult} />}
           <button
             className={styles.customizeButton}

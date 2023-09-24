@@ -117,10 +117,12 @@ function SocialReportItem(props: SocialReportItem) {
 
 function ScrubReportBreakdown(props: ScrubScoreProps) {
     const { results } = props
+
+    const walletAge = results.walletAgeDays && results.walletAgeDays > 365 ? `${Math.floor(results.walletAgeDays / 365)} ${Math.floor(results.walletAgeDays / 365) === 1 ? `year`: `years`}` : results.walletAgeDays ? `${results.walletAgeDays} days`: ``
         
     return (
         <>
-            <ReportItem itemName="Wallet Age (Days)" itemValue={results.walletAgeDays?.toString() || ''} />
+            <ReportItem itemName="Wallet Age" itemValue={walletAge} />
             <ReportItem itemName="Purchase Patterns" itemValue={results.purchasePatterns} />
             <ReportItem itemName="Total number of NFTs Purchased" itemValue={results.totalPurchases.toString()} />
             <ReportItem itemName="Highest Purchase price" itemValue={results.highestPurchase.toString()+ ' ETH'} />

@@ -467,6 +467,60 @@
   line-height: normal;
 }
 
+
+.loadingContainer {
+  display: flex;
+  align-items: flex-end;
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+}
+
+.rectangle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin: 0 3px;
+  animation: bounce 0.8s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-15px);
+  }
+  60% {
+    transform: translateY(-7px);
+  }
+}
+
+.rectangleRed {
+  background-color: #FF6B6B;
+  animation-delay: 0.1s;
+}
+
+.rectangleOrange {
+  background-color: #FF922B;
+  animation-delay: 0.2s;
+}
+
+.rectangleYellow {
+  background-color: #FCC419;
+  animation-delay: 0.3s;
+}
+
+.rectangleGreen {
+  background-color: #51CF66;
+  animation-delay: 0.4s;
+}
+
+
+
+
+
+
+
 /* .wallet {
   border-radius: 4px;
   border: 1px solid var(--border-default, #CED4DA);
