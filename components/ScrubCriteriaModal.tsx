@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from '@/styles/Home.module.css'
 import { ScrubScoreCriteria } from '@/data/score';
 import { scrubScoreAtom } from '../atoms/criteriaAtom';
@@ -24,6 +24,45 @@ const getThresholdText = (thresholdName: string) => {
             return 'What is the max ETH spent?';
     }
 }
+
+const getTooltipText = (weightName: string) => {
+    switch (weightName) {
+        case 'walletActivity':
+            return 'This weight assesses the activity duration of a wallet, considering how long it has been active. It helps in distinguishing between newly created wallets and those that have been in existence for a longer period, providing insights into the maturity and possible reliability of each wallet.';
+        case 'tieredSocialProfile':
+            return 'This weight underscores the significance of possessing ENS, Lens, or Farcaster profiles and being native to those networks.';
+        case 'frequencyPatternConsistency':
+            return 'This weight aids in distinguishing the frequency of transactions made by a wallet. It allows us to filter and identify wallets that are transacting at irregular intervals, enabling a more accurate differentiation between high signal users and potential bots or spam wallets.';
+        case 'purchaseSpike':
+            return 'This weight gauges the total number of NFTs purchased by a wallet. It aids in differentiating between wallets that have acquired a multitude of NFTs and those with fewer acquisitions, offering insights into the purchasing behavior and levels of engagement of the wallet holders.';
+        case 'pricePerPurchaseDistribution':
+            return 'This weight evaluates the average price spent on each NFT purchase by a wallet. It aids in distinguishing between wallets that tend to buy high-value NFTs and those that opt for lower-priced ones, offering insight into the purchasing power and preferences of the wallet holders.';
+    }
+}
+
+const InfoWithTooltip = (props: {
+    weightName: 'walletActivity' | 'tieredSocialProfile' | 'frequencyPatternConsistency' | 'purchaseSpike' | 'pricePerPurchaseDistribution';
+}) => {
+    const { weightName } = props;
+    const [showTooltip, setShowTooltip] = useState(false);
+  
+    return (
+      <div 
+          className={styles.tooltipContainer} 
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+      >
+        <Image
+          src="/info-circle.svg"
+          alt="info"
+          width={20}
+          height={20}
+          priority
+        />
+       {showTooltip && <div className={styles.tooltip} style={{ maxWidth: '750px' }}>{getTooltipText(weightName)}</div>}
+      </div>
+    );
+  }
 
 const Criteria = (props: CriteriaProps) => {
     const { name, weightName, thresholdName } = props;
@@ -61,7 +100,15 @@ const Criteria = (props: CriteriaProps) => {
 
     return (
         <div className={styles.criteriaSection}>
+            <div style={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 10,
+            }}>
             <h3>{name}</h3>
+            <InfoWithTooltip weightName={weightName}/>
+            </div>
             <div style={{ position: 'relative', marginTop: 10, width: 149 }}>
                 <div style={{
                     height: 60

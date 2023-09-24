@@ -180,6 +180,9 @@ interface ScrubScoreProps {
                     {wallet.includes('.eth') ? wallet : addressFormat(wallet)}
                 </span>
                 <ScrubReportBreakdown results={results} />
+                {/* <div className={styles.scrubDescriptionText}>
+                    A Scrubbie score evaluates user spam likelihood using weighted analyses. 
+                </div> */}
             </div>
         </div>
       )

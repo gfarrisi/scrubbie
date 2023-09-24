@@ -361,8 +361,8 @@
   background-color: #fff;
   padding: 50px;
   border-radius: 8px;
-  max-width: 800px;
-  min-width: 700px;
+  max-width: 850px;
+  min-width: 730px;
   position: relative;
 }
 
@@ -515,7 +515,43 @@
   animation-delay: 0.4s;
 }
 
+.tooltipContainer {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
 
+.tooltip {
+  position: absolute;
+  bottom: 100%; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  padding: 5px 10px;
+  background-color: #333;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 12px;
+  max-width: 550px !important;
+  white-space: normal; 
+  pointer-events: none; 
+  margin-bottom: 5px; 
+  z-index: 10001;
+  min-width: 250px;
+
+}
+
+.scrubDescriptionText {
+  margin-top: 4rem;
+  color: var(--secondary-4, #4A6371);
+  /* Components/input/text/md */
+  font-family: Inter;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 25px; /* 250% */
+  max-width: 720px;
+
+}
 
 
 
