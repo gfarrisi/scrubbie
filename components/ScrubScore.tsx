@@ -165,7 +165,7 @@ interface ScrubScoreProps {
                 </span>
             </div>
             <div className={styles.scrubReport}>
-                <span className={styles.walletCard}>
+                {/* <span className={styles.walletCard}>
                     <Image
                         src={'/user-search.svg'}
                         alt="Scrubbie Logo"
@@ -178,7 +178,7 @@ interface ScrubScoreProps {
                         }}
                     />
                     {wallet.includes('.eth') ? wallet : addressFormat(wallet)}
-                </span>
+                </span> */}
                 <ScrubReportBreakdown results={results} />
                 {/* <div className={styles.scrubDescriptionText}>
                     A Scrubbie score evaluates user spam likelihood using weighted analyses. 

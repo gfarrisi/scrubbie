@@ -1,5 +1,7 @@
 ## Scrubbie
 
+Visit http://scrubbie.xyz/ to start scrubbing! 🧽
+
 Description
 Scrubbie is an advanced analytical tool geared towards providing intricate insights into the crypto wallet domain. Whether by searching using an address or uploading a list of wallets, users obtain vital data including wallet age, purchasing tendencies, and the count of NFTs bought. Additionally, Scrubbie delves into the specifics of NFTs obtained and identifies associated social profiles such as ENS, Lens, and Farcaster.
 
@@ -14,7 +16,7 @@ Scrubbie operates by fetching on-chain data. Subsequently, it crafts normalized 
 You can access our API endpoint at:
 
 ```bash
-https://scrubb-764pg3c0a-gfarrisi.vercel.app/api/score
+https://scrubbie.xyz/api/score
 Method: POST
 ```
 
