@@ -1,40 +1,57 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Scrubbie
 
-## Getting Started
+Description
+Scrubbie is an advanced analytical tool geared towards providing intricate insights into the crypto wallet domain. Whether by searching using an address or uploading a list of wallets, users obtain vital data including wallet age, purchasing tendencies, and the count of NFTs bought. Additionally, Scrubbie delves into the specifics of NFTs obtained and identifies associated social profiles such as ENS, Lens, and Farcaster.
 
-First, run the development server:
+Scrubbie's capabilities go beyond as it lets users set their own criteria weights. This defines individual interpretations of high and low signal wallets. Consequently, the tool generates a score ranging from 0 to 100. This score signifies the likelihood that a wallet or a set of wallets are high or low signal, presenting a tailored, comprehensive perspective of the intricate crypto realm. Scrubbie stands out as an indispensable tool for those aiming to decode the intricacies of crypto wallet activities with precision.
+
+## How It Works - Behind the Scenes
+
+Scrubbie operates by fetching on-chain data. Subsequently, it crafts normalized weighted averages for each segment, rooted in the criteria provided by users.
+
+## API Access
+
+You can access our API endpoint at:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+https://scrubb-764pg3c0a-gfarrisi.vercel.app/api/score
+Method: POST
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Request Payload:
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+```typescript
+interface ScrubScoreCriteria {
+  walletAddress: string;
+  weights: {
+    walletActivity: number;
+    frequencyPatternConsistency: number; // Automated interval
+    purchaseSpike: number; // Number of purchases
+    pricePerPurchaseDistribution: number; // Highest price spent
+    tieredSocialProfile: number;
+  };
+  threshold: {
+    walletAge: number;
+    maxEthSpent: number;
+    numPurchases: number;
+  };
+}
+```
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+Response Type:
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+```typescript
+type ScrubScoreResult = {
+  score: number;
+  walletAddressOrENS: string;
+  walletAgeDays: number | null;
+  highestPurchase: number;
+  totalPurchases: number;
+  purchasePatterns: PurchasePattern;
+  socialProfiles: {
+    ens: string | null;
+    lens: string | null;
+    farcaster: string | null;
+  };
+};
+```
