@@ -1,7 +1,7 @@
-import styles from '@/styles/Home.module.css'
-import ScoreIndex from './ScoreIndex'
-import { ScrubScoreResult } from '@/pages'
+import { ScrubScoreResult } from '@/pages';
+import styles from '@/styles/Home.module.css';
 import Image from 'next/image';
+import ScoreIndex from './ScoreIndex';
 
 
 interface ReportItemProps {
@@ -22,7 +22,7 @@ function ReportItem(props: ReportItemProps) {
 
 
 interface SocialIconProps {
-    value: string | null;
+    value: string | boolean | null;
 }
 
 function SocialIcon(props: SocialIconProps) {
@@ -47,6 +47,7 @@ interface SocialReportItem {
         ens: string | null;
         lens: string | null;
         farcaster: string | null;
+        xmtp: boolean;
     }
 }
 
@@ -108,6 +109,10 @@ function SocialReportItem(props: SocialReportItem) {
                             itemValue.farcaster
                         }
                         </div>}
+                </div>
+                <div className={styles.socialItem}>
+                  <SocialIcon value={itemValue.xmtp} />
+                  <div className={styles.reportItemResult}>XMTP</div>
                 </div>
             </div>
         </div>

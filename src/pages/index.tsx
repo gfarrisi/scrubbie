@@ -26,6 +26,7 @@ export type ScrubScoreResult = {
     ens: string | null;
     lens: string | null;
     farcaster: string | null;
+    xmtp: boolean;
   };
 };
 
@@ -38,9 +39,7 @@ const LoadingIcon = () => {
       <div className={`${styles.rectangle} ${styles.rectangleGreen}`}></div>
     </div>
   );
-}
-
-
+};
 
 export default function Home() {
   const [isScrubModalOpen, setScrubModalOpen] = useState(false);
@@ -63,9 +62,7 @@ export default function Home() {
     setSearchTriggered(false);
   }
 
-
-  console.log({searchTriggered})
-
+  console.log({ searchTriggered });
 
   return (
     <>
@@ -99,13 +96,10 @@ export default function Home() {
               value={scrubCritera?.walletAddress || ""}
               onChange={(e) => {
                 console.log(e.target.value);
-                setScrubCriteria(
-                  {
-                    ...scrubCritera,
-                    walletAddress: e.target.value,
-                  },
-                )
-
+                setScrubCriteria({
+                  ...scrubCritera,
+                  walletAddress: e.target.value,
+                });
               }}
             />
             <button onClick={() => fetchResults()}>

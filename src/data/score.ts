@@ -306,8 +306,8 @@ const pricePerPurchaseDistributionScore = (
 
 // Social Profile with tiered system
 const tieredSocialProfileScore = (wallet: WalletData): number => {
-  // Assuming 3 is the highest level of verification. Adjust if needed.
-  return 1 - wallet.profileScore / 3;
+  // Assuming 4 is the highest level of verification. Adjust if needed.
+  return 1 - wallet.profileScore / 4;
 };
 
 // Utility function for normalization
@@ -484,6 +484,7 @@ export const getScrubScore = async (scrubScoreProps: ScrubScoreCriteria): Promis
       ens: socialData?.primaryDomain,
       lens: socialData?.lensProfileName,
       farcaster: socialData?.farcasterProfileName,
+      xmtp: socialData?.isXMTPEnabled,
     },
   };
 };

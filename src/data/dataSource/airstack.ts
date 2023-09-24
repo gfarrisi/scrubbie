@@ -43,6 +43,9 @@ const SOCIAL_PROFILE = gql`
         profileName
         userAssociatedAddresses
       }
+      xmtp {
+        isXMTPEnabled
+      }
     }
   }
 `;
@@ -61,6 +64,9 @@ type SocialDataPayload = {
   primaryDomain?: Domain;
   domains: Domain[];
   socials: Social[];
+  xmtp: {
+    isXMTPEnabled: boolean;
+  }[];
 };
 
 export const computeVerificationLevel = (profiles: string[]): number => {
@@ -74,7 +80,7 @@ export const computeVerificationLevel = (profiles: string[]): number => {
   return verificationLevel;
 };
 
-export const extractSocialData = (payload: SocialDataPayload): any => {
+export const extractSocialData = (payload: SocialDataPayload): SocialData => {
   let primaryDomainName: string | null = null;
   if (payload.primaryDomain) {
     primaryDomainName = payload.primaryDomain.name;
@@ -104,11 +110,16 @@ export const extractSocialData = (payload: SocialDataPayload): any => {
   if (farcasterData.profileName) {
     profiles.push(farcasterData.profileName);
   }
+  const isXMTPEnabled = payload?.xmtp?.[0]?.isXMTPEnabled || false;
+  if (isXMTPEnabled) {
+    profiles.push("XMTP");
+  }
   return {
     primaryDomain: primaryDomainName,
     lensProfileName: lensData.profileName,
     farcasterProfileName: farcasterData.profileName,
     profileScore: computeVerificationLevel(profiles),
+    isXMTPEnabled: isXMTPEnabled,
   };
 };
 
@@ -117,6 +128,7 @@ export interface SocialData {
   lensProfileName: string | null;
   farcasterProfileName: string | null;
   profileScore: number;
+  isXMTPEnabled: boolean;
 }
 
 export const getSocialProfiles = async (
