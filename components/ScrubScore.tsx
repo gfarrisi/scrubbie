@@ -176,7 +176,7 @@ interface ScrubScoreProps {
                 </span>
                 <ScrubReportBreakdown results={results} />
                 {/* <div className={styles.scrubDescriptionText}>
-                    A Scrubbie score uses weighted analyses to assess the probability of user spam. You can view or adjust scrub criteria using the Customize Scrub button bellow 
+                    A Scrubbie score evaluates user spam likelihood using weighted analyses. 
                 </div> */}
             </div>
         </div>
