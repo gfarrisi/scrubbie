@@ -332,24 +332,48 @@
 
 .modal {
   background-color: #fff;
-  padding: 20px;
+  padding: 50px;
   border-radius: 8px;
   max-width: 800px;
-  min-width: 500px;
+  min-width: 700px;
   position: relative;
 }
 
 .modalHeader {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.modalHeader h2 {
+  color: var(--base-black, #000);
+  text-align: center;
+  
+  /* Title/h2 */
+  font-family: Inter;
+  font-size: 29px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 135%; /* 35.1px */
+  margin-bottom: .5rem;
+}
+
+.modalHeader p {
+  color: var(--secondary-3, #6A7F8A);
+  text-align: center;
+  
+  /* Text/400/md */
+  font-family: Inter;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 155%; /* 24.8px */
 }
 
 .closeButton {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 30px;
+  right: 30px;
 
 
   border: none;
@@ -359,6 +383,62 @@
   font-weight: 700;
 }
 
+.criteriaSection {
+  padding: 1.3rem 0rem;
+}
+
+.criteriaSection h3 {
+  color: var(--text-default, #212529);
+  /* Title/h5 */
+  font-family: Inter;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 150%; /* 24px */
+}
+
+
+.thresholdText {
+  color: var(--text-tertiary, #868E96);
+
+  /* Components/input/description/sm */
+  font-family: Inter;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 14px; /* 116.667% */
+}
+
+.thresholdInput {
+  margin-top: 10px;
+  border-radius: var(--sm, 4px);
+  border: 1.2px solid var(--border-default, #CED4DA);
+  background: var(--base-background, #FFF);
+  width: 40px;
+  height: 27px;
+  color: var(--text-disabled, #ADB5BD);
+  padding: 3px;
+  /* Components/input/text/sm */
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 34px; /* 242.857% */
+}
+
+
+
+.searchButtonText {
+  color: var(--base-white, #FFF);
+  text-align: center;
+
+  /* Components/button/lg */
+  font-family: Inter;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
 
 /* .wallet {
   border-radius: 4px;

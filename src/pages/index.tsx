@@ -1,11 +1,14 @@
-import { ScrubScoreCriteria } from '@/data/score';
-import styles from '@/styles/Home.module.css';
-import { Inter } from 'next/font/google';
-import Head from 'next/head';
-import Image from 'next/image';
-import { useState } from 'react';
-import ScrubModal from '../../components/ScrubCriteriaModal';
-import ScrubScore from '../../components/ScrubScore';
+import Head from 'next/head'
+import Image from 'next/image'
+import { Inter } from 'next/font/google'
+import styles from '@/styles/Home.module.css'
+import { useEffect, useState } from 'react'
+import ScoreIndex from '../../components/ScoreIndex'
+import ScrubScore from '../../components/ScrubScore'
+import ScrubModal from '../../components/ScrubCriteriaModal'
+import { ScrubScoreCriteria } from '@/data/score'
+import { scrubScoreAtom } from '../../atoms/criteriaAtom'
+import { useAtom } from 'jotai'
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,21 +34,7 @@ export type ScrubScoreResult = {
 export default function Home() {
   const [searchedValue, setSearchValue] = useState<string>('')
   const [isScrubModalOpen, setScrubModalOpen] = useState(false);
-  const [scrubCritera, setScrubCriteria] = useState<ScrubScoreCriteria>({
-    walletAddress: '',
-    weights: {
-      walletActivity: 1,
-      frequencyPatternConsistency: 3,
-      purchaseSpike: 1,
-      pricePerPurchaseDistribution: 3,
-      tieredSocialProfile: 2
-    },
-    threshold: {
-      walletAge: 365,
-      maxEthSpent: .1,
-      numPurchases: 10,
-    }
-  })
+  const [scrubCritera, setScrubCriteria] = useAtom(scrubScoreAtom);
   const walletAddress = '0x1fDcf949E139dB1EEfdC5D7A2787AF15a73c26B4'
   const [searchResult, setSearchResult] = useState<ScrubScoreResult>() 
 
@@ -109,12 +98,11 @@ export default function Home() {
                 }
               />
               <button 
-              
               onClick={
                 () => fetchScore()
               }>
                 <Image
-                  src="/search.svg"
+                  src="/bubbles.svg"
                   alt="search"
                   width={45}
                   height={40}
