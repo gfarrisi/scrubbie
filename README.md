@@ -1,6 +1,6 @@
 ## Scrubbie
 
-Visit http://scrubbie.xyz/ to start scrubbing! 🧽
+Visit http://scrubbie.xyz/ to start scrubbing! 🧽🧽
 
 Description
 Scrubbie is an advanced analytical tool geared towards providing intricate insights into the crypto wallet domain. Whether by searching using an address or uploading a list of wallets, users obtain vital data including wallet age, purchasing tendencies, and the count of NFTs bought. Additionally, Scrubbie delves into the specifics of NFTs obtained and identifies associated social profiles such as ENS, Lens, and Farcaster.
