@@ -14,7 +14,7 @@ Scrubbie operates by fetching on-chain data. Subsequently, it crafts normalized 
 You can access our API endpoint at:
 
 ```bash
-https://scrubb-764pg3c0a-gfarrisi.vercel.app/api/score
+https://scrubbie.xyz/api/score
 Method: POST
 ```
 
