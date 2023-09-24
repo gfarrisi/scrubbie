@@ -91,7 +91,7 @@ export default function Home() {
             }),
           }}
         >
-          <div className={styles.title}>Search to check wallet</div>
+          <div className={styles.title}>Search to see Scrubbie Report</div>
           <div className={styles.search}>
             <input
               type="text"
