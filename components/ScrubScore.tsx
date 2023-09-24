@@ -127,7 +127,7 @@ function ScrubReportBreakdown(props: ScrubScoreProps) {
         
     return (
         <>
-            <ReportItem itemName="Wallet Age" itemValue={walletAge} />
+            <ReportItem itemName="Wallet Activity" itemValue={walletAge} />
             <ReportItem itemName="Purchase Patterns" itemValue={results.purchasePatterns} />
             <ReportItem itemName="Total number of NFTs Purchased" itemValue={results.totalPurchases.toString()} />
             <ReportItem itemName="Highest Purchase price" itemValue={results.highestPurchase.toString()+ ' ETH'} />
