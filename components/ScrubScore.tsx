@@ -118,16 +118,17 @@ interface ScrubScoreProps {
             </div>
             <div className={styles.scrubReport}>
                 <span className={styles.walletCard}>
-                <Image
-                    src={'/user-search.svg'}
-                    alt="Scrubbie Logo"
-                    width={17}
-                    height={17}
-                    priority
-                    style={{
-                        paddingTop: 5,
-                    }}
-                />
+                    <Image
+                        src={'/user-search.svg'}
+                        alt="Scrubbie Logo"
+                        width={17}
+                        height={17}
+                        priority
+                        style={{
+                            // verticalAlign: 'middle'
+                            transform: 'translateY(3px)'  // adjust the value accordingly
+                        }}
+                    />
                     {results.walletAddressOrENS}
                 </span>
                 <ScrubReportBreakdown results={results} />

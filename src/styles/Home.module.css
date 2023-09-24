@@ -222,6 +222,8 @@
   margin-bottom: 1rem;
 }
 
+
+
 .scrubReportTitle {
   color: var(--secondary-3, var(--secondary-3, #6A7F8A));
   /* Title/h5 */
@@ -306,16 +308,23 @@
   background: var(--card-background, #F8F9FA);
   display: flex;
   align-items: center;
-  gap: .5rem;
-  padding: .2rem;
+  gap: .6rem;
+  padding: .3rem;
   color: var(--text-default, #212529);
+  height: 34px;
   /* Components/badge/text */
   font-family: Inter;
   font-size: 14px;
   font-style: normal;
   font-weight: 500;
   line-height: 16px; /* 160% */
+  position: relative;
 }
+
+/* .walletCard img {
+  margin: 0;
+  vertical-align: middle;
+} */
 
 .modalOverlay {
   position: fixed;
