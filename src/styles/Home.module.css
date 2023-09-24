@@ -412,15 +412,15 @@
 .thresholdInput {
   margin-top: 10px;
   border-radius: var(--sm, 4px);
-  border: 1.2px solid var(--border-default, #CED4DA);
+  border: 1.1px solid var(--border-default, #CED4DA);
   background: var(--base-background, #FFF);
   width: 40px;
   height: 27px;
   color: var(--text-disabled, #ADB5BD);
-  padding: 3px;
+  padding: 5px;
   /* Components/input/text/sm */
   font-family: Inter;
-  font-size: 14px;
+  font-size: 12px;
   font-style: normal;
   font-weight: 400;
   line-height: 34px; /* 242.857% */

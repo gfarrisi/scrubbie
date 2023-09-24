@@ -39,7 +39,7 @@ export default function Home() {
   const [searchResult, setSearchResult] = useState<ScrubScoreResult>() 
 
 
-  async function fetchScore() {
+  async function fetchResults() {
     const scamScore = await fetch(`/api/score?walletAddress=${walletAddress}`);
     const scamScoreJSON = await scamScore.json();
     console.log(scamScoreJSON);
@@ -99,7 +99,7 @@ export default function Home() {
               />
               <button 
               onClick={
-                () => fetchScore()
+                () => fetchResults()
               }>
                 <Image
                   src="/bubbles.svg"
@@ -137,6 +137,7 @@ export default function Home() {
             onClose={() => setScrubModalOpen(false)}
             scrubCritera={scrubCritera}
             setScrubCriteria={setScrubCriteria}
+            fetchResults={fetchResults}
           />
          
       </main>
