@@ -125,7 +125,7 @@ export default function Home() {
             onClick={() => setScrubModalOpen(true)}
           >
             {`${
-              searchResult ? `View or adjust scrub criteria` : `Customize Scrub`
+              `Customize Scrub`
             }`}
           </button>
         </div>

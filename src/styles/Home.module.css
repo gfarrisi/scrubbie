@@ -540,6 +540,18 @@
 
 }
 
+.scrubDescriptionText {
+  margin-top: 1rem;
+  color: var(--secondary-4, #4A6371);
+
+/* Components/input/text/md */
+font-family: Inter;
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: 40px; /* 250% */
+}
+
 
 
 

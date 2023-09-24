@@ -175,6 +175,9 @@ interface ScrubScoreProps {
                     {wallet.includes('.eth') ? wallet : addressFormat(wallet)}
                 </span>
                 <ScrubReportBreakdown results={results} />
+                {/* <div className={styles.scrubDescriptionText}>
+                    A Scrubbie score uses weighted analyses to assess the probability of user spam. You can view or adjust scrub criteria using the Customize Scrub button bellow 
+                </div> */}
             </div>
         </div>
       )
