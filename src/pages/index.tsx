@@ -1,14 +1,12 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from '@/styles/Home.module.css'
-import { useEffect, useState } from 'react'
-import ScoreIndex from '../../components/ScoreIndex'
-import ScrubScore from '../../components/ScrubScore'
-import ScrubModal from '../../components/ScrubCriteriaModal'
-import { ScrubScoreCriteria } from '@/data/score'
-import { scrubScoreAtom } from '../../atoms/criteriaAtom'
-import { useAtom } from 'jotai'
+import styles from '@/styles/Home.module.css';
+import { useAtom } from 'jotai';
+import { Inter } from 'next/font/google';
+import Head from 'next/head';
+import Image from 'next/image';
+import { useState } from 'react';
+import { scrubScoreAtom } from '../../atoms/criteriaAtom';
+import ScrubModal from '../../components/ScrubCriteriaModal';
+import ScrubScore from '../../components/ScrubScore';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -35,29 +33,20 @@ export default function Home() {
   const [searchedValue, setSearchValue] = useState<string>('')
   const [isScrubModalOpen, setScrubModalOpen] = useState(false);
   const [scrubCritera, setScrubCriteria] = useAtom(scrubScoreAtom);
-  const walletAddress = '0x1fDcf949E139dB1EEfdC5D7A2787AF15a73c26B4'
   const [searchResult, setSearchResult] = useState<ScrubScoreResult>() 
 
 
   async function fetchScore() {
-    const scamScore = await fetch(`/api/score?walletAddress=${walletAddress}`);
+    const scamScore = await fetch(`/api/score`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(scrubCritera),
+    });
     const scamScoreJSON = await scamScore.json();
     console.log(scamScoreJSON);
-    setSearchResult(
-      {
-        score: 60,
-        walletAddressOrENS: 'vitalik.eth',
-        walletAgeDays: 100,
-        highestPurchase: 100,
-        totalPurchases: 100,
-        purchasePatterns: PurchasePattern.Unusual,
-        socialProfiles: {
-          ens: true,
-          lens: true,
-          farcaster: false
-        }
-      }
-    )
+    setSearchResult(scamScoreJSON);
   }
 
   return (

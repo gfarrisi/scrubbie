@@ -433,6 +433,15 @@ const computeSpamScore = (
 export const getScrubScore = async (scrubScoreProps: ScrubScoreCriteria) => {
   const socialData = await getSocialProfiles(scrubScoreProps?.walletAddress);
   const purchaseData = await getPurchases(scrubScoreProps?.walletAddress);
+  let maxPurchaseValue = 0;
+  purchaseData.forEach((purchase) => {
+    const purchaseValue =
+      Number(purchase.paymentAmount) /
+      Math.pow(10, purchase.paymentToken.decimals);
+    if (purchaseValue > maxPurchaseValue) {
+      maxPurchaseValue = purchaseValue;
+    }
+  });
   const earliestTransaction = await getEarliestTransaction(
     scrubScoreProps?.walletAddress
   );
@@ -451,5 +460,29 @@ export const getScrubScore = async (scrubScoreProps: ScrubScoreCriteria) => {
     purchaseData
   );
   console.log("spamScore", spamScore);
-  return 1 - spamScore;
+  const scrubScore = 1 - spamScore;
+  const walletAddressOrENS =
+    socialData.primaryDomain || scrubScoreProps.walletAddress;
+  const walletAgeDays = walletData.walletAge;
+  const totalWeight = Object.values(scrubScoreProps.weights).reduce(
+    (a, b) => a + b,
+    0
+  );
+  const normalizedWeightPatternConsistency =
+    scrubScoreProps.weights.frequencyPatternConsistency / totalWeight;
+  const patternConsistencyMetric =
+    normalizedWeightPatternConsistency * patternConsistencyScore(purchaseData);
+  return {
+    score: Math.round(scrubScore * 100),
+    walletAddressOrENS: walletAddressOrENS,
+    walletAgeDays: !!walletAgeDays ? Math.round(walletAgeDays) : null,
+    highestPurchase: maxPurchaseValue,
+    totalPurchases: purchaseData.length,
+    purchasePatterns: patternConsistencyMetric > 0.1 ? "Unusual" : "Normal",
+    socialProfiles: {
+      ens: socialData?.primaryDomain,
+      lens: socialData?.lensProfileName,
+      farcaster: socialData?.farcasterProfileName,
+    },
+  };
 };
