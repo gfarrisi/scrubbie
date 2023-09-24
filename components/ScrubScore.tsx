@@ -22,7 +22,7 @@ function ReportItem(props: ReportItemProps) {
 
 
 interface SocialIconProps {
-    value: boolean;
+    value: string | null;
 }
 
 function SocialIcon(props: SocialIconProps) {
@@ -44,9 +44,9 @@ function SocialIcon(props: SocialIconProps) {
 interface SocialReportItem {
     itemName: string;
     itemValue: {
-        ens: boolean;
-        lens: boolean;
-        farcaster: boolean;
+        ens: string | null;
+        lens: string | null;
+        farcaster: string | null;
     }
 }
 
@@ -77,7 +77,9 @@ function SocialReportItem(props: SocialReportItem) {
                         width={15}
                         height={15}
                         priority
-                        />Yourmom.eth</div>}
+                        />{
+                            itemValue.ens
+                        }</div>}
                 </div>
                 <div className={styles.socialItem}>
                     <SocialIcon value={itemValue.lens} />
@@ -90,7 +92,7 @@ function SocialReportItem(props: SocialReportItem) {
                         height={15}
                         priority
                         />
-                        Yourmom.lens</div>}
+                        {itemValue.lens}</div>}
                 </div>
                 <div className={styles.socialItem}>
                     <SocialIcon value={itemValue.farcaster} />
@@ -102,7 +104,10 @@ function SocialReportItem(props: SocialReportItem) {
                         width={15}
                         height={15}
                         priority
-                        />Yourmom</div>}
+                        />{
+                            itemValue.farcaster
+                        }
+                        </div>}
                 </div>
             </div>
         </div>
@@ -115,7 +120,7 @@ function ScrubReportBreakdown(props: ScrubScoreProps) {
         
     return (
         <>
-            <ReportItem itemName="Wallet Age (Days)" itemValue={results.walletAgeDays.toString()} />
+            <ReportItem itemName="Wallet Age (Days)" itemValue={results.walletAgeDays?.toString() || ''} />
             <ReportItem itemName="Purchase Patterns" itemValue={results.purchasePatterns} />
             <ReportItem itemName="Total number of NFTs Purchased" itemValue={results.totalPurchases.toString()} />
             <ReportItem itemName="Highest Purchase price" itemValue={results.highestPurchase.toString()+ ' ETH'} />

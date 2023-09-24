@@ -1,3 +1,4 @@
+import { PurchasePattern, ScrubScoreResult } from "@/pages";
 import {
   PurchaseData,
   SocialData,
@@ -430,7 +431,7 @@ const computeSpamScore = (
   return combinedScore;
 };
 
-export const getScrubScore = async (scrubScoreProps: ScrubScoreCriteria) => {
+export const getScrubScore = async (scrubScoreProps: ScrubScoreCriteria): Promise<ScrubScoreResult> => {
   const socialData = await getSocialProfiles(scrubScoreProps?.walletAddress);
   const purchaseData = await getPurchases(scrubScoreProps?.walletAddress);
   let maxPurchaseValue = 0;
@@ -478,7 +479,7 @@ export const getScrubScore = async (scrubScoreProps: ScrubScoreCriteria) => {
     walletAgeDays: !!walletAgeDays ? Math.round(walletAgeDays) : null,
     highestPurchase: maxPurchaseValue,
     totalPurchases: purchaseData.length,
-    purchasePatterns: patternConsistencyMetric > 0.1 ? "Unusual" : "Normal",
+    purchasePatterns: patternConsistencyMetric > 0.1 ? PurchasePattern.Unusual : PurchasePattern.Normal,
     socialProfiles: {
       ens: socialData?.primaryDomain,
       lens: socialData?.lensProfileName,

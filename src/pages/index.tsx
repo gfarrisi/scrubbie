@@ -10,7 +10,7 @@ import ScrubScore from "../../components/ScrubScore";
 
 const inter = Inter({ subsets: ["latin"] });
 
-enum PurchasePattern {
+export enum PurchasePattern {
   Unusual = "Unusual",
   Normal = "Normal",
 }
@@ -18,14 +18,14 @@ enum PurchasePattern {
 export type ScrubScoreResult = {
   score: number;
   walletAddressOrENS: string;
-  walletAgeDays: number;
+  walletAgeDays: number | null;
   highestPurchase: number;
   totalPurchases: number;
   purchasePatterns: PurchasePattern;
   socialProfiles: {
-    ens: boolean;
-    lens: boolean;
-    farcaster: boolean;
+    ens: string | null;
+    lens: string | null;
+    farcaster: string | null;
   };
 };
 
@@ -34,6 +34,7 @@ export default function Home() {
   const [isScrubModalOpen, setScrubModalOpen] = useState(false);
   const [scrubCritera, setScrubCriteria] = useAtom(scrubScoreAtom);
   const [searchResult, setSearchResult] = useState<ScrubScoreResult>();
+  const [searchTriggered, setSearchTriggered] = useState<boolean>(false);
 
   async function fetchResults() {
     const scamScore = await fetch(`/api/score`, {
@@ -47,6 +48,8 @@ export default function Home() {
     console.log(scamScoreJSON);
     setSearchResult(scamScoreJSON);
   }
+
+
 
   return (
     <>
@@ -77,10 +80,16 @@ export default function Home() {
             <input
               type="text"
               placeholder="vitalik.eth"
-              value={searchedValue || ""}
+              value={scrubCritera?.walletAddress || ""}
               onChange={(e) => {
                 console.log(e.target.value);
-                setSearchValue(e.target.value);
+                setScrubCriteria(
+                  {
+                    ...scrubCritera,
+                    walletAddress: e.target.value,
+                  },
+                )
+
               }}
             />
             <button onClick={() => fetchResults()}>
