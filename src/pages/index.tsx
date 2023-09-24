@@ -93,7 +93,7 @@ export default function Home() {
           <div className={styles.search}>
             <input
               type="text"
-              placeholder="vitalik.eth"
+              placeholder={scrubCritera?.walletAddress || "vitalik.eth"}
               value={scrubCritera?.walletAddress || ""}
               onChange={(e) => {
                 console.log(e.target.value);
@@ -101,6 +101,9 @@ export default function Home() {
                   ...scrubCritera,
                   walletAddress: e.target.value,
                 });
+              }}
+              onFocus={(e) => {
+                e.target.value = '';
               }}
             />
             <button onClick={() => fetchResults()}>
