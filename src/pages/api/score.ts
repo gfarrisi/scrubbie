@@ -16,7 +16,7 @@ export default async function handler(
     walletAddress,
     weights: {
       walletActivity: 1,
-      diversePurchaseFrequency: 1,
+      frequencyPatternConsistency: 1,
       purchaseSpike: 1,
       pricePerPurchaseDistribution: 1,
       tieredSocialProfile: 1,

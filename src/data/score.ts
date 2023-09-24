@@ -23,7 +23,7 @@ export interface ScrubScoreCriteria {
   walletAddress: string;
   weights: {
     walletActivity: number;
-    diversePurchaseFrequency: number; //change to automated interval
+    frequencyPatternConsistency: number; //change to automated interval
     purchaseSpike: number; //number of purchases
     pricePerPurchaseDistribution: number; //highest price spent
     tieredSocialProfile: number;
@@ -175,6 +175,16 @@ export const createWalletData = (
   };
 };
 
+// Wallet age
+const walletAgeScore = (wallet: WalletData, minMax: MinMaxData): number => {
+  if (!wallet.creationDate) return 0;
+  const ageDays =
+    (new Date().getTime() - wallet.creationDate.getTime()) /
+    (1000 * 60 * 60 * 24);
+  const oldestWalletAgeDays = new Date(minMax.oldestWalletDate).getTime();
+  return normalize(ageDays, 0, oldestWalletAgeDays);
+};
+
 // Wallet age with activity ratio
 const walletActivityScore = (
   wallet: WalletData,
@@ -189,16 +199,30 @@ const walletActivityScore = (
   return normalize(activityRatio, 0, minMax.maxTransactions / age);
 };
 
-// Purchase Frequency considering diverse purchases
-const diversePurchaseFrequencyScore = (
+// Combined score for wallet age and activity
+const combinedWalletAgeScore = (
   wallet: WalletData,
-  minMax: MinMaxData
+  minMax: MinMaxData,
+  threshold: number
 ): number => {
-  if (wallet.purchases.total === 0) return 1;
-  const uniqueDestinations = new Set(wallet.purchases.destinations).size;
-  const diversityScore = uniqueDestinations / wallet.purchases.total;
-  const frequency = wallet.purchases.frequency || 0;
-  return normalize(frequency * diversityScore, 0, minMax.maxFrequency);
+  if (!wallet.creationDate) return 1;
+  const walletAgeDays =
+    (new Date().getTime() - wallet.creationDate.getTime()) /
+    (1000 * 60 * 60 * 24);
+  const maxWalletAgeDays =
+    (new Date().getTime() - minMax.oldestWalletDate.getTime()) /
+    (1000 * 60 * 60 * 24);
+  const factor = modulationFactor(
+    walletAgeDays,
+    0,
+    maxWalletAgeDays,
+    threshold
+  );
+  return (
+    factor *
+    ((2 / 3) * walletAgeScore(wallet, minMax) +
+      (1 / 3) * walletActivityScore(wallet, minMax))
+  );
 };
 
 // Number of Purchases distribution over time
@@ -217,10 +241,39 @@ const purchaseSpikeScore = (wallet: WalletData, minMax: MinMaxData): number => {
   );
 };
 
+// Number of Purchases
+const numOfPurchasesScore = (
+  wallet: WalletData,
+  minMax: MinMaxData
+): number => {
+  return normalize(wallet.purchases.total, 0, minMax.maxTotalPurchases);
+};
+
+// Combined score for number of purchases
+const combinedPurchaseScore = (
+  wallet: WalletData,
+  minMax: MinMaxData,
+  threshold: number
+): number => {
+  const factor = modulationFactor(
+    wallet.purchases.total,
+    0,
+    minMax.maxTotalPurchases,
+    threshold
+  );
+  return (
+    factor *
+    ((numOfPurchasesScore(wallet, minMax) +
+      purchaseSpikeScore(wallet, minMax)) /
+      2)
+  );
+};
+
 // Price per Purchase distribution
 const pricePerPurchaseDistributionScore = (
   wallet: WalletData,
-  minMax: MinMaxData
+  minMax: MinMaxData,
+  threshold: number
 ): number => {
   if (wallet.purchases.total === 0 || wallet.purchases.values.length === 0) {
     return 1;
@@ -241,7 +294,13 @@ const pricePerPurchaseDistributionScore = (
       ? range
       : minMax.globalMaxPurchaseValue - minMax.globalMinPurchaseValue;
 
-  return normalize(standardDeviation, 0, normalizationMax);
+  const factor = modulationFactor(
+    mean,
+    minMax.globalMinPurchaseValue,
+    minMax.globalMaxPurchaseValue,
+    threshold
+  );
+  return factor * normalize(standardDeviation, 0, normalizationMax);
 };
 
 // Social Profile with tiered system
@@ -256,23 +315,85 @@ const normalize = (value: number, min: number, max: number): number => {
   return (value - min) / (max - min);
 };
 
+// Modulation function that returns a value between 0 and 1 taking into account the threshold
+const modulationFactor = (
+  value: number,
+  min: number,
+  max: number,
+  threshold: number
+): number => {
+  if (value < threshold) {
+    // Value is between min and threshold
+    return (value - min) / (threshold - min);
+  }
+  // Value is between threshold and max
+  return 1 - (value - threshold) / (max - threshold);
+};
+
+const patternConsistencyScore = (purchases: PurchaseData[]): number => {
+  if (purchases.length < 2) return 1;
+
+  const deltas: number[] = [];
+
+  // Calculate time differences between consecutive purchases
+  for (let i = 1; i < purchases.length; i++) {
+    const currentPurchaseTime = new Date(purchases[i].blockTimestamp).getTime();
+    const previousPurchaseTime = new Date(
+      purchases[i - 1].blockTimestamp
+    ).getTime();
+    const delta =
+      (currentPurchaseTime - previousPurchaseTime) / (1000 * 60 * 60);
+    deltas.push(delta);
+  }
+
+  // Count deltas that fall into specific buckets
+  const buckets: {
+    [key: string]: number;
+  } = {};
+  deltas.forEach((delta) => {
+    const rounded = Math.round(delta); // can adjust rounding for precision
+    buckets[rounded] = (buckets[rounded] || 0) + 1;
+  });
+
+  // Find most common delta
+  const mostCommonDelta = parseFloat(
+    Object.keys(buckets).reduce((a, b) => (buckets[a] > buckets[b] ? a : b))
+  );
+
+  // Calculate percentage of deltas that are around the most common delta
+  const tolerance = 0.5;
+  const patternedDeltas = deltas.filter(
+    (delta) => Math.abs(delta - mostCommonDelta) <= tolerance
+  );
+  const score = 1 - patternedDeltas.length / deltas.length;
+
+  return score;
+};
+
 // Combined spam score
 const computeSpamScore = (
   wallet: WalletData,
   weights: {
     walletActivity: number;
-    diversePurchaseFrequency: number;
+    frequencyPatternConsistency: number;
     purchaseSpike: number;
     pricePerPurchaseDistribution: number;
     tieredSocialProfile: number;
   },
-  minMax: MinMaxData
+  minMax: MinMaxData,
+  threshold: {
+    walletAge: number;
+    maxEthSpent: number;
+    numPurchases: number;
+  },
+  purchases: PurchaseData[]
 ): number => {
   // Normalize the weights
   const totalWeight = Object.values(weights).reduce((a, b) => a + b, 0);
   const normalizedWeights = {
     walletActivity: weights.walletActivity / totalWeight,
-    diversePurchaseFrequency: weights.diversePurchaseFrequency / totalWeight,
+    frequencyPatternConsistency:
+      weights.frequencyPatternConsistency / totalWeight,
     purchaseSpike: weights.purchaseSpike / totalWeight,
     pricePerPurchaseDistribution:
       weights.pricePerPurchaseDistribution / totalWeight,
@@ -280,29 +401,31 @@ const computeSpamScore = (
   };
 
   const walletAgeScore =
-    normalizedWeights.walletActivity * walletActivityScore(wallet, minMax);
+    normalizedWeights.walletActivity *
+    combinedWalletAgeScore(wallet, minMax, threshold.walletAge);
   console.log("walletAgeScore", walletAgeScore);
   const socialProfileScore =
     normalizedWeights.tieredSocialProfile * tieredSocialProfileScore(wallet);
   console.log("socialProfileScore", socialProfileScore);
-  const purchaseSpike =
-    normalizedWeights.purchaseSpike * purchaseSpikeScore(wallet, minMax);
-  console.log("purchaseSpike", purchaseSpike);
+  const numPurchaseScore =
+    normalizedWeights.purchaseSpike *
+    combinedPurchaseScore(wallet, minMax, threshold.numPurchases);
+  console.log("numPurchaseScore", numPurchaseScore);
   const pricePerPurchaseDistribution =
     normalizedWeights.pricePerPurchaseDistribution *
-    pricePerPurchaseDistributionScore(wallet, minMax);
+    pricePerPurchaseDistributionScore(wallet, minMax, threshold.maxEthSpent);
   console.log("pricePerPurchaseDistribution", pricePerPurchaseDistribution);
-  const diversePurchaseFrequency =
-    normalizedWeights.diversePurchaseFrequency *
-    diversePurchaseFrequencyScore(wallet, minMax);
-  console.log("diversePurchaseFrequency", diversePurchaseFrequency);
+  const frequencyPatternConsistency =
+    normalizedWeights.frequencyPatternConsistency *
+    patternConsistencyScore(purchases);
+  console.log("frequencyPatternConsistency", frequencyPatternConsistency);
 
   const combinedScore =
     walletAgeScore +
     socialProfileScore +
-    purchaseSpike +
+    numPurchaseScore +
     pricePerPurchaseDistribution +
-    diversePurchaseFrequency;
+    frequencyPatternConsistency;
 
   return combinedScore;
 };
@@ -323,7 +446,9 @@ export const getScrubScore = async (scrubScoreProps: ScrubScoreCriteria) => {
   const spamScore = computeSpamScore(
     walletData,
     scrubScoreProps.weights,
-    minMaxData
+    minMaxData,
+    scrubScoreProps.threshold,
+    purchaseData
   );
   console.log("spamScore", spamScore);
   return 1 - spamScore;
