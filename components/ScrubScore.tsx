@@ -124,7 +124,17 @@ function ScrubReportBreakdown(props: ScrubScoreProps) {
     )
 }
     
-
+export const addressFormat = (address: string, length?: number) => {
+    const lengthToTrim = length || 4;
+    if (address.length < lengthToTrim * 2) return address;
+    return (
+      address &&
+      `${address?.substring(0, lengthToTrim)}...${address?.substring(
+        address.length - lengthToTrim,
+        address.length
+      )}`
+    );
+  };
 
 interface ScrubScoreProps {
     results: ScrubScoreResult
@@ -133,6 +143,7 @@ interface ScrubScoreProps {
   export default function ScrubScore(props: ScrubScoreProps) {
     const { results } = props
      
+    const wallet = results.walletAddressOrENS;
       return (
         <div className={styles.searchResults}>
             <ScoreIndex score={results.score} />
@@ -154,7 +165,7 @@ interface ScrubScoreProps {
                             transform: 'translateY(3px)'  // adjust the value accordingly
                         }}
                     />
-                    {results.walletAddressOrENS}
+                    {wallet.includes('.eth') ? wallet : addressFormat(wallet)}
                 </span>
                 <ScrubReportBreakdown results={results} />
             </div>
