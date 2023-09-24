@@ -10,7 +10,7 @@ import Image from 'next/image';
 
 interface CriteriaProps {
     name: string;
-    weightName: 'walletActivity' | 'tieredSocialProfile' | 'diversePurchaseFrequency' | 'purchaseSpike' | 'pricePerPurchaseDistribution';
+    weightName: 'walletActivity' | 'tieredSocialProfile' | 'frequencyPatternConsistency' | 'purchaseSpike' | 'pricePerPurchaseDistribution';
     thresholdName?: 'walletAge' | 'numPurchases' | 'maxEthSpent';
 }
 
@@ -159,7 +159,7 @@ const CriteriaContainer = () => {
             </div>
             <div style={{flex: 1}}>
                 <Criteria name="Price per Purchase" weightName="pricePerPurchaseDistribution" thresholdName='maxEthSpent'/>
-                <Criteria name="Irregular Purchase Frequency" weightName="diversePurchaseFrequency" />
+                <Criteria name="Irregular Purchase Frequency" weightName="frequencyPatternConsistency" />
             </div>
         </div>
     );

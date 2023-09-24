@@ -4,7 +4,7 @@ export const scrubScoreAtom = atom<ScrubScoreCriteria>({
     walletAddress: 'vitalik.eth',
     weights: {
       walletActivity: 1,
-      diversePurchaseFrequency: 3,
+      frequencyPatternConsistency: 3,
       purchaseSpike: 1,
       pricePerPurchaseDistribution: 3,
       tieredSocialProfile: 2
