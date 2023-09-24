@@ -332,7 +332,7 @@ const modulationFactor = (
 };
 
 const patternConsistencyScore = (purchases: PurchaseData[]): number => {
-  if (purchases.length < 2) return 1;
+  if (purchases.length < 2) return 0.25;
 
   const deltas: number[] = [];
 
@@ -343,9 +343,14 @@ const patternConsistencyScore = (purchases: PurchaseData[]): number => {
       purchases[i - 1].blockTimestamp
     ).getTime();
     const delta =
-      (currentPurchaseTime - previousPurchaseTime) / (1000 * 60 * 60);
-    deltas.push(delta);
+      (currentPurchaseTime - previousPurchaseTime) / (1000 * 60 * 60); // Delta in hours
+    if (delta <= 24) {
+      // Filter out purchases that are more than a day apart
+      deltas.push(delta);
+    }
   }
+
+  if (deltas.length < 2) return 0.25;
 
   // Count deltas that fall into specific buckets
   const buckets: {
@@ -431,7 +436,9 @@ const computeSpamScore = (
   return combinedScore;
 };
 
-export const getScrubScore = async (scrubScoreProps: ScrubScoreCriteria): Promise<ScrubScoreResult> => {
+export const getScrubScore = async (
+  scrubScoreProps: ScrubScoreCriteria
+): Promise<ScrubScoreResult> => {
   const socialData = await getSocialProfiles(scrubScoreProps?.walletAddress);
   const purchaseData = await getPurchases(scrubScoreProps?.walletAddress);
   let maxPurchaseValue = 0;
@@ -479,7 +486,12 @@ export const getScrubScore = async (scrubScoreProps: ScrubScoreCriteria): Promis
     walletAgeDays: !!walletAgeDays ? Math.round(walletAgeDays) : null,
     highestPurchase: maxPurchaseValue,
     totalPurchases: purchaseData.length,
-    purchasePatterns: patternConsistencyMetric > 0.1 ? PurchasePattern.Unusual : PurchasePattern.Normal,
+    purchasePatterns:
+      purchaseData.length > 0
+        ? patternConsistencyMetric > 0.15
+          ? PurchasePattern.Unusual
+          : PurchasePattern.Normal
+        : PurchasePattern.NotAvailable,
     socialProfiles: {
       ens: socialData?.primaryDomain,
       lens: socialData?.lensProfileName,

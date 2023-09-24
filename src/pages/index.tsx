@@ -13,6 +13,7 @@ const inter = Inter({ subsets: ["latin"] });
 export enum PurchasePattern {
   Unusual = "Unusual",
   Normal = "Normal",
+  NotAvailable = "Not Available",
 }
 
 export type ScrubScoreResult = {
@@ -118,9 +119,7 @@ export default function Home() {
             className={styles.customizeButton}
             onClick={() => setScrubModalOpen(true)}
           >
-            {`${
-              `Customize Scrub`
-            }`}
+            {`${`Customize Scrub`}`}
           </button>
         </div>
 
