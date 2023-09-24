@@ -70,14 +70,39 @@ function SocialReportItem(props: SocialReportItem) {
                 <div className={styles.socialItem}>
                     <SocialIcon value={itemValue.ens} />
                     <div className={styles.reportItemResult}>ENS</div> 
+                    {itemValue.ens && <div className={styles.socialItemName}>   
+                    <Image
+                        src={'/currency-ethereum.svg'}
+                        alt="Scrubbie Logo"
+                        width={15}
+                        height={15}
+                        priority
+                        />Yourmom.eth</div>}
                 </div>
                 <div className={styles.socialItem}>
                     <SocialIcon value={itemValue.lens} />
                     <div className={styles.reportItemResult}>Lens</div>
+                    {itemValue.lens && <div className={styles.socialItemName}>
+                    <Image
+                        src={'/at.svg'}
+                        alt="Scrubbie Logo"
+                        width={15}
+                        height={15}
+                        priority
+                        />
+                        Yourmom.lens</div>}
                 </div>
                 <div className={styles.socialItem}>
                     <SocialIcon value={itemValue.farcaster} />
                     <div className={styles.reportItemResult}>Farcaster</div>
+                    {itemValue.farcaster && <div className={styles.socialItemName}>
+                    <Image
+                        src={'/at.svg'}
+                        alt="Scrubbie Logo"
+                        width={15}
+                        height={15}
+                        priority
+                        />Yourmom</div>}
                 </div>
             </div>
         </div>
