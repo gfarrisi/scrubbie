@@ -7,7 +7,7 @@ Scrubbie's capabilities go beyond as it lets users set their own criteria weight
 
 ## How It Works - Behind the Scenes
 
-Scrubbie operates by fetching on-chain data. Subsequently, it crafts normalized weighted averages for each segment, rooted in the criteria provided by users.
+Scrubbie operates by fetching on-chain data. Subsequently, it crafts normalized weighted averages for each segment, rooted in the criteria provided by the post body payload.
 
 ## API Access
 
