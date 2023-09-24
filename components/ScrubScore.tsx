@@ -70,14 +70,39 @@ function SocialReportItem(props: SocialReportItem) {
                 <div className={styles.socialItem}>
                     <SocialIcon value={itemValue.ens} />
                     <div className={styles.reportItemResult}>ENS</div> 
+                    {itemValue.ens && <div className={styles.socialItemName}>   
+                    <Image
+                        src={'/currency-ethereum.svg'}
+                        alt="Scrubbie Logo"
+                        width={15}
+                        height={15}
+                        priority
+                        />Yourmom.eth</div>}
                 </div>
                 <div className={styles.socialItem}>
                     <SocialIcon value={itemValue.lens} />
                     <div className={styles.reportItemResult}>Lens</div>
+                    {itemValue.lens && <div className={styles.socialItemName}>
+                    <Image
+                        src={'/at.svg'}
+                        alt="Scrubbie Logo"
+                        width={15}
+                        height={15}
+                        priority
+                        />
+                        Yourmom.lens</div>}
                 </div>
                 <div className={styles.socialItem}>
                     <SocialIcon value={itemValue.farcaster} />
                     <div className={styles.reportItemResult}>Farcaster</div>
+                    {itemValue.farcaster && <div className={styles.socialItemName}>
+                    <Image
+                        src={'/at.svg'}
+                        alt="Scrubbie Logo"
+                        width={15}
+                        height={15}
+                        priority
+                        />Yourmom</div>}
                 </div>
             </div>
         </div>
@@ -99,7 +124,17 @@ function ScrubReportBreakdown(props: ScrubScoreProps) {
     )
 }
     
-
+export const addressFormat = (address: string, length?: number) => {
+    const lengthToTrim = length || 4;
+    if (address.length < lengthToTrim * 2) return address;
+    return (
+      address &&
+      `${address?.substring(0, lengthToTrim)}...${address?.substring(
+        address.length - lengthToTrim,
+        address.length
+      )}`
+    );
+  };
 
 interface ScrubScoreProps {
     results: ScrubScoreResult
@@ -108,6 +143,7 @@ interface ScrubScoreProps {
   export default function ScrubScore(props: ScrubScoreProps) {
     const { results } = props
      
+    const wallet = results.walletAddressOrENS;
       return (
         <div className={styles.searchResults}>
             <ScoreIndex score={results.score} />
@@ -118,17 +154,18 @@ interface ScrubScoreProps {
             </div>
             <div className={styles.scrubReport}>
                 <span className={styles.walletCard}>
-                <Image
-                    src={'/user-search.svg'}
-                    alt="Scrubbie Logo"
-                    width={17}
-                    height={17}
-                    priority
-                    style={{
-                        paddingTop: 5,
-                    }}
-                />
-                    {results.walletAddressOrENS}
+                    <Image
+                        src={'/user-search.svg'}
+                        alt="Scrubbie Logo"
+                        width={17}
+                        height={17}
+                        priority
+                        style={{
+                            // verticalAlign: 'middle'
+                            transform: 'translateY(3px)'  // adjust the value accordingly
+                        }}
+                    />
+                    {wallet.includes('.eth') ? wallet : addressFormat(wallet)}
                 </span>
                 <ScrubReportBreakdown results={results} />
             </div>

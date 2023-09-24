@@ -32,41 +32,47 @@ const Criteria = (props: CriteriaProps) => {
     const [threshold, setThreshold] = React.useState<number | null>(thresholdName ? scrubCritera.threshold[thresholdName] : null)
 
 
-    console.log({
-        weight,
-        threshold
-    })
-    const weightScaleCalculation = (weight: number) => {
-        switch (weight) {
-            case 0:
-                return -5;
-            case 1:
-                return '24.33%';
-            case 2:
-                return '58.66%';
-            case 3:
-                return '89%';
-            }
+    React.useEffect(() => {
+        if(thresholdName) {
+            setScrubCriteria({
+                ...scrubCritera,
+                weights: {
+                    ...scrubCritera.weights,
+                    [weightName]: weight
+                },
+                threshold: {
+                    ...scrubCritera.threshold,
+                    [thresholdName]: threshold
+                }
+            })
+        }
+        else{
+            setScrubCriteria({
+                ...scrubCritera,
+                weights: {
+                    ...scrubCritera.weights,
+                    [weightName]: weight
+                },
+            
+            })
+        }
     }
+    , [weight, threshold])
 
-    const weightScale = weightScaleCalculation(scrubCritera.weights[weightName])
-    console.log(scrubCritera.weights[weightName], weightScale)
-
-    const width = 149
     return (
         <div className={styles.criteriaSection}>
             <h3>{name}</h3>
-            <div style={{ position: 'relative', marginTop: 10, width: width }}>
+            <div style={{ position: 'relative', marginTop: 10, width: 149 }}>
                 <div style={{
                     height: 60
                 }}>
                 <Slider step={1} min={0} max={3} 
                    handleStyle={{
-                    backgroundColor: 'darkgrey',
-                    borderColor: 'darkgrey'
+                    backgroundColor: '#868E96',
+                    borderColor: '#868E96'
                     }}
                     trackStyle={{
-                        backgroundColor: 'darkgrey'
+                        backgroundColor: '#868E96'
                     }}
                     onChange= {(value) => {
                         console.log(value)
@@ -145,7 +151,6 @@ const CriteriaContainer = () => {
         <div style={{
             display: 'flex',
             flexDirection: 'row',
-            // textAlign: 'center',
             width: '90%',
             margin: 'auto',
             marginLeft: '8%',
@@ -153,7 +158,7 @@ const CriteriaContainer = () => {
             gap: 50,
         }}>
             <div style={{flex: 1}}>
-                <Criteria name="Wallet Age" weightName="walletActivity" thresholdName='walletAge'/>
+                <Criteria name="Wallet Activity" weightName="walletActivity" thresholdName='walletAge'/>
                 <Criteria name="Number of NFTs Purchased" weightName="purchaseSpike" thresholdName='numPurchases'/>
                 <Criteria name="Social Profiles" weightName="tieredSocialProfile"/>
             </div>
@@ -172,10 +177,11 @@ interface ScrubModalProps {
     onClose: () => void;
     scrubCritera: ScrubScoreCriteria;
     setScrubCriteria: (criteria: ScrubScoreCriteria) => void;
+    fetchResults: () => void;
 }
 
 const ScrubModal = (props: ScrubModalProps) => {
-    const { isOpen, onClose, scrubCritera, setScrubCriteria } = props;
+    const { isOpen, onClose, scrubCritera, setScrubCriteria, fetchResults } = props;
     if (!isOpen) {
         return null;
     }
@@ -194,13 +200,29 @@ const ScrubModal = (props: ScrubModalProps) => {
                 <p>Assign weights for each category that is important to you.</p>
             </div>
             <CriteriaContainer />
-            <div className={styles.search}>
+            <div className={styles.search} style={{
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'flex-end',
+            }}>
             <button 
-                // onClick={
-                //     // () => fetchScore()
-                // }>
+                onClick={
+                    () => {
+                        fetchResults()
+                        onClose()
+                    } 
+                }
                 className={styles.searchButtonText}
+                style={{
+                    width: scrubCritera.walletAddress ? 120: 95,
+                    marginTop: 0
+                }}
                 >
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                    }}>
                     <Image
                     src="/bubbles.svg"
                     alt="search"
@@ -208,7 +230,9 @@ const ScrubModal = (props: ScrubModalProps) => {
                     height={40}
                     priority
                     />
-                    Scrub
+                    {scrubCritera.walletAddress ? "Scrub": "Set"}
+                    </div>
+
                 </button>
             </div>
         </div>

@@ -1,18 +1,18 @@
-import styles from '@/styles/Home.module.css';
-import { useAtom } from 'jotai';
-import { Inter } from 'next/font/google';
-import Head from 'next/head';
-import Image from 'next/image';
-import { useState } from 'react';
-import { scrubScoreAtom } from '../../atoms/criteriaAtom';
-import ScrubModal from '../../components/ScrubCriteriaModal';
-import ScrubScore from '../../components/ScrubScore';
+import styles from "@/styles/Home.module.css";
+import { useAtom } from "jotai";
+import { Inter } from "next/font/google";
+import Head from "next/head";
+import Image from "next/image";
+import { useState } from "react";
+import { scrubScoreAtom } from "../../atoms/criteriaAtom";
+import ScrubModal from "../../components/ScrubCriteriaModal";
+import ScrubScore from "../../components/ScrubScore";
 
 const inter = Inter({ subsets: ["latin"] });
 
 enum PurchasePattern {
-  Unusual = 'Unusual',
-  Normal = 'Normal'
+  Unusual = "Unusual",
+  Normal = "Normal",
 }
 
 export type ScrubScoreResult = {
@@ -26,17 +26,16 @@ export type ScrubScoreResult = {
     ens: boolean;
     lens: boolean;
     farcaster: boolean;
-  }
-}
+  };
+};
 
 export default function Home() {
-  const [searchedValue, setSearchValue] = useState<string>('')
+  const [searchedValue, setSearchValue] = useState<string>("");
   const [isScrubModalOpen, setScrubModalOpen] = useState(false);
   const [scrubCritera, setScrubCriteria] = useAtom(scrubScoreAtom);
-  const [searchResult, setSearchResult] = useState<ScrubScoreResult>() 
+  const [searchResult, setSearchResult] = useState<ScrubScoreResult>();
 
-
-  async function fetchScore() {
+  async function fetchResults() {
     const scamScore = await fetch(`/api/score`, {
       method: "POST",
       headers: {
@@ -59,75 +58,64 @@ export default function Home() {
       </Head>
       <main className={`${styles.main} ${inter.className}`}>
         <Image
-            src="/Scrubbie.svg"
-            alt="Scrubbie Logo"
-            width={350}
-            height={350}
-            priority
-          />
-          <div className={styles.card}
-            style={{
-              ...(searchResult && {
-                minWidth: 950,
-              })
-            }}>
-            <div className={styles.title}>Search to check wallet</div>
-            <div
-              className={styles.search}
-            >
-              <input
-                type="text"
-                placeholder="vitalik.eth"
-                value={searchedValue || ""}
-                onChange={
-                  (e) => {
-                    console.log(e.target.value)
-                    setSearchValue(e.target.value)
-                  }
-                }
+          src="/Scrubbie.svg"
+          alt="Scrubbie Logo"
+          width={350}
+          height={350}
+          priority
+        />
+        <div
+          className={styles.card}
+          style={{
+            ...(searchResult && {
+              minWidth: 950,
+            }),
+          }}
+        >
+          <div className={styles.title}>Search to check wallet</div>
+          <div className={styles.search}>
+            <input
+              type="text"
+              placeholder="vitalik.eth"
+              value={searchedValue || ""}
+              onChange={(e) => {
+                console.log(e.target.value);
+                setSearchValue(e.target.value);
+              }}
+            />
+            <button onClick={() => fetchResults()}>
+              <Image
+                src="/bubbles.svg"
+                alt="search"
+                width={45}
+                height={40}
+                priority
               />
-              <button 
-              onClick={
-                () => fetchScore()
-              }>
-                <Image
-                  src="/bubbles.svg"
-                  alt="search"
-                  width={45}
-                  height={40}
-                  priority
-                />
-                </button>
-            </div>
-            {
-              searchResult && (
-               <ScrubScore results={
-                searchResult
-               }/>
-              )
-            }
-            <button
-              className={styles.customizeButton}
-              onClick={() => setScrubModalOpen(true)}
-              >
-                {`${
-                  searchResult ? `View or adjust scrub criteria` : `Customize Scrub`
-                }`}
-                </button>
+            </button>
           </div>
+          {searchResult && <ScrubScore results={searchResult} />}
+          <button
+            className={styles.customizeButton}
+            onClick={() => setScrubModalOpen(true)}
+          >
+            {`${
+              searchResult ? `View or adjust scrub criteria` : `Customize Scrub`
+            }`}
+          </button>
+        </div>
 
-          <div style={{
+        <div
+          style={{
             height: 100,
-          }}>
-
-          </div>
-          <ScrubModal 
-            isOpen={isScrubModalOpen} 
-            onClose={() => setScrubModalOpen(false)}
-            scrubCritera={scrubCritera}
-            setScrubCriteria={setScrubCriteria}
-          />
-         
+          }}
+        ></div>
+        <ScrubModal
+          isOpen={isScrubModalOpen}
+          onClose={() => setScrubModalOpen(false)}
+          scrubCritera={scrubCritera}
+          setScrubCriteria={setScrubCriteria}
+          fetchResults={fetchResults}
+        />
       </main>
     </>
   );

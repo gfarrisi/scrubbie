@@ -222,6 +222,8 @@
   margin-bottom: 1rem;
 }
 
+
+
 .scrubReportTitle {
   color: var(--secondary-3, var(--secondary-3, #6A7F8A));
   /* Title/h5 */
@@ -293,6 +295,24 @@
   font-weight: 400;
   line-height: 155%; /* 24.8px */
 }
+
+.socialItemName {
+  border-radius: 4px;
+  border: 1px solid var(--border-default, #CED4DA);
+  background: var(--card-background, #F8F9FA);
+  color: var(--text-default, #212529);
+  /* Components/badge/text */
+  padding: 5px;
+  font-family: Inter;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 16px; /* 160% */
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+}
+
 .socialItem {
   display: flex;
   align-items: center;
@@ -306,16 +326,23 @@
   background: var(--card-background, #F8F9FA);
   display: flex;
   align-items: center;
-  gap: .5rem;
-  padding: .2rem;
+  gap: .7rem;
+  padding: .3rem .3rem .4rem .3rem;
   color: var(--text-default, #212529);
+  /* height: 34px; */
   /* Components/badge/text */
   font-family: Inter;
   font-size: 14px;
   font-style: normal;
   font-weight: 500;
   line-height: 16px; /* 160% */
+  position: relative;
 }
+
+/* .walletCard img {
+  margin: 0;
+  vertical-align: middle;
+} */
 
 .modalOverlay {
   position: fixed;
@@ -412,15 +439,15 @@
 .thresholdInput {
   margin-top: 10px;
   border-radius: var(--sm, 4px);
-  border: 1.2px solid var(--border-default, #CED4DA);
+  border: 1.1px solid var(--border-default, #CED4DA);
   background: var(--base-background, #FFF);
   width: 40px;
   height: 27px;
   color: var(--text-disabled, #ADB5BD);
-  padding: 3px;
+  padding: 5px;
   /* Components/input/text/sm */
   font-family: Inter;
-  font-size: 14px;
+  font-size: 12px;
   font-style: normal;
   font-weight: 400;
   line-height: 34px; /* 242.857% */
